@@ -1,0 +1,414 @@
+{
+  "info": {
+    "name": "Portfolio Tracker API",
+    "description": "Complete API collection for Portfolio Tracker",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "01. Authentication",
+      "item": [
+        {
+          "name": "Test Auth Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/test-auth",
+              "host": ["{{base_url}}"],
+              "path": ["api", "test-auth"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "02. Portfolios",
+      "item": [
+        {
+          "name": "List Portfolios",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has data array\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('data');",
+                  "    pm.expect(jsonData.data).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/portfolios",
+              "host": ["{{base_url}}"],
+              "path": ["api", "portfolios"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Portfolio",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Portfolio created successfully\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('data');",
+                  "    pm.expect(jsonData.data.name).to.eql(pm.variables.get('portfolio_name'));",
+                  "    ",
+                  "    // Save portfolio_id for next requests",
+                  "    pm.environment.set(\"portfolio_id\", jsonData.data.id);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test Portfolio\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/portfolios",
+              "host": ["{{base_url}}"],
+              "path": ["api", "portfolios"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Portfolio by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/portfolios/{{portfolio_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "portfolios", "{{portfolio_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Portfolio",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Portfolio Name\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/portfolios/{{portfolio_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "portfolios", "{{portfolio_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Portfolio",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/portfolios/{{portfolio_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "portfolios", "{{portfolio_id}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "03. Assets",
+      "item": [
+        {
+          "name": "List Assets in Portfolio",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/portfolios/{{portfolio_id}}/assets",
+              "host": ["{{base_url}}"],
+              "path": ["api", "portfolios", "{{portfolio_id}}", "assets"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Asset",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Asset created successfully\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('data');",
+                  "    ",
+                  "    // Save asset_id for next requests",
+                  "    pm.environment.set(\"asset_id\", jsonData.data.id);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"portfolio_id\": \"{{portfolio_id}}\",\n  \"symbol\": \"AAPL\",\n  \"quantity\": 10,\n  \"average_buy_price\": 150.50,\n  \"type\": \"STOCK\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/portfolios/{{portfolio_id}}/assets",
+              "host": ["{{base_url}}"],
+              "path": ["api", "portfolios", "{{portfolio_id}}", "assets"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Asset by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/assets/{{asset_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "assets", "{{asset_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Asset",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quantity\": 15,\n  \"average_buy_price\": 155.00\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/assets/{{asset_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "assets", "{{asset_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Asset",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/assets/{{asset_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "assets", "{{asset_id}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "04. Transactions",
+      "item": [
+        {
+          "name": "List Transactions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/assets/{{asset_id}}/transactions?limit=10&offset=0&order=desc",
+              "host": ["{{base_url}}"],
+              "path": ["api", "assets", "{{asset_id}}", "transactions"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                },
+                {
+                  "key": "order",
+                  "value": "desc"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create BUY Transaction",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"BUY transaction created\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data.type).to.eql(\"BUY\");",
+                  "    ",
+                  "    // Save transaction_id",
+                  "    pm.environment.set(\"transaction_id\", jsonData.data.id);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"asset_id\": \"{{asset_id}}\",\n  \"type\": \"BUY\",\n  \"amount\": 5,\n  \"price\": 155.00,\n  \"date\": \"2025-01-01T00:00:00Z\",\n  \"transaction_cost\": 1.50\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/assets/{{asset_id}}/transactions",
+              "host": ["{{base_url}}"],
+              "path": ["api", "assets", "{{asset_id}}", "transactions"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create SELL Transaction",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"asset_id\": \"{{asset_id}}\",\n  \"type\": \"SELL\",\n  \"amount\": 3,\n  \"price\": 160.00,\n  \"date\": \"2025-01-02T00:00:00Z\",\n  \"transaction_cost\": 1.00\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/assets/{{asset_id}}/transactions",
+              "host": ["{{base_url}}"],
+              "path": ["api", "assets", "{{asset_id}}", "transactions"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Transaction by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/transactions/{{transaction_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "transactions", "{{transaction_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Transaction",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"price\": 165.00,\n  \"transaction_cost\": 2.00\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/transactions/{{transaction_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "transactions", "{{transaction_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Transaction",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/transactions/{{transaction_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "transactions", "{{transaction_id}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000",
+      "type": "string"
+    }
+  ]
+}
+

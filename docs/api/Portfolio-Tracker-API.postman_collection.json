@@ -1,0 +1,1015 @@
+{
+	"info": {
+		"_postman_id": "portfolio-tracker-api-001",
+		"name": "Portfolio Tracker API",
+		"description": "Complete API collection for Portfolio Tracker application. Includes all endpoints for Portfolios, Assets, and Transactions.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "portfolio-tracker"
+	},
+	"item": [
+		{
+			"name": "01. Authentication",
+			"item": [
+				{
+					"name": "Test Auth Status",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has user data\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('user');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/test-auth",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"test-auth"
+							]
+						},
+						"description": "Test authentication status. Returns current user information if authenticated."
+					},
+					"response": []
+				}
+			],
+			"description": "Authentication endpoints"
+		},
+		{
+			"name": "02. Portfolios",
+			"item": [
+				{
+					"name": "List Portfolios",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has data array\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('data');",
+									"    pm.expect(jsonData.data).to.be.an('array');",
+									"});",
+									"",
+									"pm.test(\"Response time is less than 500ms\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(500);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/portfolios",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"portfolios"
+							]
+						},
+						"description": "List all portfolios for the authenticated user. Returns array of portfolios ordered by created_at DESC."
+					},
+					"response": []
+				},
+				{
+					"name": "Create Portfolio",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test(\"Portfolio created successfully\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('data');",
+									"    pm.expect(jsonData.data).to.have.property('id');",
+									"    pm.expect(jsonData.data).to.have.property('name');",
+									"    ",
+									"    // Save portfolio_id for next requests",
+									"    pm.environment.set(\"portfolio_id\", jsonData.data.id);",
+									"    console.log(\"Portfolio ID saved:\", jsonData.data.id);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"My Investment Portfolio\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/portfolios",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"portfolios"
+							]
+						},
+						"description": "Create a new portfolio for the authenticated user. Requires 'name' field (min 1, max 255 characters)."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Portfolio by ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Portfolio has nested assets\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data).to.have.property('assets');",
+									"    pm.expect(jsonData.data.assets).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/portfolios/{{portfolio_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"portfolios",
+								"{{portfolio_id}}"
+							]
+						},
+						"description": "Get portfolio details with nested assets and transactions. Requires valid portfolio UUID."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Portfolio",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Portfolio name updated\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.name).to.eql(\"Updated Portfolio Name\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Updated Portfolio Name\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/portfolios/{{portfolio_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"portfolios",
+								"{{portfolio_id}}"
+							]
+						},
+						"description": "Update portfolio (e.g., change name). Requires valid portfolio UUID."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Portfolio",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Portfolio deleted\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('message');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/portfolios/{{portfolio_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"portfolios",
+								"{{portfolio_id}}"
+							]
+						},
+						"description": "Delete portfolio. Cascade deletes all assets and transactions. Requires valid portfolio UUID."
+					},
+					"response": []
+				}
+			],
+			"description": "Portfolio management endpoints"
+		},
+		{
+			"name": "03. Assets",
+			"item": [
+				{
+					"name": "List Assets in Portfolio",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has data array\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('data');",
+									"    pm.expect(jsonData.data).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/portfolios/{{portfolio_id}}/assets",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"portfolios",
+								"{{portfolio_id}}",
+								"assets"
+							]
+						},
+						"description": "List all assets in a portfolio. Requires valid portfolio UUID."
+					},
+					"response": []
+				},
+				{
+					"name": "Create Asset",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test(\"Asset created successfully\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('data');",
+									"    pm.expect(jsonData.data.symbol).to.eql(\"AAPL\");",
+									"    ",
+									"    // Save asset_id for next requests",
+									"    pm.environment.set(\"asset_id\", jsonData.data.id);",
+									"    console.log(\"Asset ID saved:\", jsonData.data.id);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"portfolio_id\": \"{{portfolio_id}}\",\n  \"symbol\": \"AAPL\",\n  \"quantity\": 10,\n  \"average_buy_price\": 150.50,\n  \"type\": \"STOCK\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/portfolios/{{portfolio_id}}/assets",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"portfolios",
+								"{{portfolio_id}}",
+								"assets"
+							]
+						},
+						"description": "Add new asset to portfolio. Requires portfolio_id, symbol, quantity, average_buy_price, and type. Asset types: STOCK, CRYPTO, FOREX, MUTUAL_FUND, ETF, BOND, COMMODITY, REAL_ESTATE, DERIVATIVE, OTHER."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Asset by ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Asset has nested transactions\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data).to.have.property('transactions');",
+									"    pm.expect(jsonData.data.transactions).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/assets/{{asset_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"assets",
+								"{{asset_id}}"
+							]
+						},
+						"description": "Get asset details with nested transactions. Requires valid asset UUID."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Asset",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Asset updated successfully\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.quantity).to.eql(15);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"quantity\": 15,\n  \"average_buy_price\": 155.00\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/assets/{{asset_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"assets",
+								"{{asset_id}}"
+							]
+						},
+						"description": "Update asset (quantity, price, symbol, type). Requires valid asset UUID."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Asset",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Asset deleted\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('message');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/assets/{{asset_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"assets",
+								"{{asset_id}}"
+							]
+						},
+						"description": "Delete asset. Cascade deletes all transactions. Requires valid asset UUID."
+					},
+					"response": []
+				}
+			],
+			"description": "Asset management endpoints"
+		},
+		{
+			"name": "04. Transactions",
+			"item": [
+				{
+					"name": "List Transactions",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has data array\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('data');",
+									"    pm.expect(jsonData.data).to.be.an('array');",
+									"});",
+									"",
+									"pm.test(\"Response has count\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('count');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/assets/{{asset_id}}/transactions?limit=10&offset=0&order=desc",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"assets",
+								"{{asset_id}}",
+								"transactions"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "10",
+									"description": "Number of results (default: 100)"
+								},
+								{
+									"key": "offset",
+									"value": "0",
+									"description": "Number of results to skip (default: 0)"
+								},
+								{
+									"key": "order",
+									"value": "desc",
+									"description": "Sort order: asc or desc (default: desc)"
+								}
+							]
+						},
+						"description": "List all transactions for an asset with pagination. Requires valid asset UUID."
+					},
+					"response": []
+				},
+				{
+					"name": "Create BUY Transaction",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test(\"BUY transaction created\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.type).to.eql(\"BUY\");",
+									"    ",
+									"    // Save transaction_id",
+									"    pm.environment.set(\"transaction_id\", jsonData.data.id);",
+									"    console.log(\"Transaction ID saved:\", jsonData.data.id);",
+									"    console.log(\"Note: Asset quantity and average_buy_price should be updated automatically\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"asset_id\": \"{{asset_id}}\",\n  \"type\": \"BUY\",\n  \"amount\": 5,\n  \"price\": 155.00,\n  \"date\": \"2025-01-01T00:00:00Z\",\n  \"transaction_cost\": 1.50\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/assets/{{asset_id}}/transactions",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"assets",
+								"{{asset_id}}",
+								"transactions"
+							]
+						},
+						"description": "Record BUY transaction. Automatically updates asset's quantity and average_buy_price. Requires asset_id, type (BUY), amount, price, date, and optional transaction_cost."
+					},
+					"response": []
+				},
+				{
+					"name": "Create SELL Transaction",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test(\"SELL transaction created\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.type).to.eql(\"SELL\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"asset_id\": \"{{asset_id}}\",\n  \"type\": \"SELL\",\n  \"amount\": 3,\n  \"price\": 160.00,\n  \"date\": \"2025-01-02T00:00:00Z\",\n  \"transaction_cost\": 1.00\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/assets/{{asset_id}}/transactions",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"assets",
+								"{{asset_id}}",
+								"transactions"
+							]
+						},
+						"description": "Record SELL transaction. Automatically reduces asset quantity and calculates realized gain/loss. Requires asset_id, type (SELL), amount, price, date, and optional transaction_cost."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Transaction by ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Transaction data returned\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('data');",
+									"    pm.expect(jsonData.data).to.have.property('id');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/transactions/{{transaction_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"transactions",
+								"{{transaction_id}}"
+							]
+						},
+						"description": "Get transaction details. Requires valid transaction UUID."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Transaction",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Transaction updated\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.price).to.eql(165);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"price\": 165.00,\n  \"transaction_cost\": 2.00\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/transactions/{{transaction_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"transactions",
+								"{{transaction_id}}"
+							]
+						},
+						"description": "Update transaction. Requires valid transaction UUID."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Transaction",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Transaction deleted\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('message');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/transactions/{{transaction_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"transactions",
+								"{{transaction_id}}"
+							]
+						},
+						"description": "Delete transaction. Requires valid transaction UUID."
+					},
+					"response": []
+				}
+			],
+			"description": "Transaction management endpoints"
+		},
+		{
+			"name": "05. Enhanced Features",
+			"item": [
+				{
+					"name": "Import Asset from Transactions",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"symbol\": \"AAPL\",\n  \"type\": \"STOCK\",\n  \"currency\": \"USD\",\n  \"initial_purchase_date\": \"2024-01-01T00:00:00Z\",\n  \"transactions\": [\n    {\n      \"type\": \"BUY\",\n      \"amount\": 10,\n      \"price\": 150.00,\n      \"date\": \"2024-01-01T00:00:00Z\",\n      \"transaction_cost\": 0\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/portfolios/{{portfolio_id}}/assets/import",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"portfolios",
+								"{{portfolio_id}}",
+								"assets",
+								"import"
+							]
+						},
+						"description": "Create asset from historical transactions. Calculates initial quantity and average buy price automatically."
+					},
+					"response": []
+				},
+				{
+					"name": "Bulk Import Transactions",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"transactions\": [\n    {\n      \"type\": \"BUY\",\n      \"amount\": 5,\n      \"price\": 155.00,\n      \"date\": \"2024-01-15T00:00:00Z\",\n      \"transaction_cost\": 0\n    },\n    {\n      \"type\": \"BUY\",\n      \"amount\": 3,\n      \"price\": 160.00,\n      \"date\": \"2024-01-20T00:00:00Z\",\n      \"transaction_cost\": 0\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/assets/{{asset_id}}/transactions/import",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"assets",
+								"{{asset_id}}",
+								"transactions",
+								"import"
+							]
+						},
+						"description": "Bulk import historical transactions for an asset. Processes transactions chronologically and updates asset automatically."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Cost Basis",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/assets/{{asset_id}}/cost-basis",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"assets",
+								"{{asset_id}}",
+								"cost-basis"
+							]
+						},
+						"description": "Get cost basis information for an asset (FIFO method)."
+					},
+					"response": []
+				},
+				{
+					"name": "Benchmark Comparison",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/portfolios/{{portfolio_id}}/benchmark-comparison",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"portfolios",
+								"{{portfolio_id}}",
+								"benchmark-comparison"
+							]
+						},
+						"description": "Compare portfolio performance vs benchmark."
+					},
+					"response": []
+				},
+				{
+					"name": "Portfolio Analytics",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/portfolios/{{portfolio_id}}/analytics",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"portfolios",
+								"{{portfolio_id}}",
+								"analytics"
+							]
+						},
+						"description": "Get portfolio analytics (value, performance, allocation)."
+					},
+					"response": []
+				},
+				{
+					"name": "Asset Performance",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/assets/{{asset_id}}/performance",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"assets",
+								"{{asset_id}}",
+								"performance"
+							]
+						},
+						"description": "Get asset performance metrics (realized/unrealized gains)."
+					},
+					"response": []
+				},
+				{
+					"name": "Transaction Analytics",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/portfolios/{{portfolio_id}}/transactions/analytics",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"portfolios",
+								"{{portfolio_id}}",
+								"transactions",
+								"analytics"
+							]
+						},
+						"description": "Get transaction analytics for a portfolio (patterns, statistics)."
+					},
+					"response": []
+				}
+			],
+			"description": "Enhanced features: Historical import, cost basis, benchmark comparison, analytics"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Auto-add cookie if access_token is set in environment",
+					"const accessToken = pm.environment.get(\"access_token\");",
+					"if (accessToken) {",
+					"    pm.request.headers.add({",
+					"        key: 'Cookie',",
+					"        value: `sb-access-token=${accessToken}`",
+					"    });",
+					"}"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Common test: Not unauthorized",
+					"if (pm.response.code !== 401) {",
+					"    pm.test(\"Not unauthorized\", function () {",
+					"        pm.expect(pm.response.code).to.not.equal(401);",
+					"    });",
+					"}",
+					"",
+					"// Common test: Response is JSON",
+					"if (pm.response.headers.get('Content-Type') && pm.response.headers.get('Content-Type').includes('application/json')) {",
+					"    pm.test(\"Response is JSON\", function () {",
+					"        pm.response.to.be.json;",
+					"    });",
+					"}"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:3000",
+			"type": "string"
+		}
+	]
+}
+
