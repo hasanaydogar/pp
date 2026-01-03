@@ -4,15 +4,17 @@ import React from 'react';
 import { useAsset } from '@/lib/hooks/use-asset';
 import { useAssetPerformance } from '@/lib/hooks/use-asset-performance';
 import { useTransactions } from '@/lib/hooks/use-transactions';
+import { useLivePrice } from '@/lib/hooks/use-live-price';
 import { Heading } from '@/components/ui/heading';
 import { Text } from '@/components/ui/text';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { ErrorMessage } from '@/components/ui/error-message';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { DeleteAssetDialog } from '@/components/assets/delete-asset-dialog';
 import Link from 'next/link';
-import { PlusIcon, PencilIcon, TrashIcon, ArrowTrendingUpIcon, ArrowTrendingDownIcon } from '@heroicons/react/20/solid';
+import { PlusIcon, PencilIcon, TrashIcon, ArrowTrendingUpIcon, ArrowTrendingDownIcon, ArrowPathIcon } from '@heroicons/react/20/solid';
 import { TransactionType } from '@/lib/types/portfolio';
 import { DeleteTransactionDialog } from '@/components/transactions/delete-transaction-dialog';
 
@@ -36,6 +38,18 @@ export default function AssetDetailPage({ params }: AssetDetailPageProps) {
     limit: 20,
     offset: 0,
   });
+  
+  // Live price hook
+  const {
+    price: livePrice,
+    loading: priceLoading,
+    error: priceError,
+    refetch: refetchPrice,
+    lastUpdated: priceLastUpdated,
+  } = useLivePrice(asset?.symbol, asset?.currency || 'USD', {
+    enabled: !!asset?.symbol,
+  });
+
   const [deleteAssetDialogOpen, setDeleteAssetDialogOpen] = React.useState(false);
   const [deleteTransactionDialogOpen, setDeleteTransactionDialogOpen] = React.useState(false);
   const [selectedTransaction, setSelectedTransaction] = React.useState<any>(null);
@@ -83,7 +97,31 @@ export default function AssetDetailPage({ params }: AssetDetailPageProps) {
   const assetAveragePrice = typeof asset.average_buy_price === 'number' 
     ? asset.average_buy_price 
     : parseFloat(String(asset.average_buy_price)) || 0;
-  const totalValue = assetQuantity * assetAveragePrice;
+  const costBasis = assetQuantity * assetAveragePrice;
+  
+  // Live price calculations
+  const currentPrice = livePrice?.price ?? null;
+  const marketValue = currentPrice !== null ? assetQuantity * currentPrice : null;
+  const unrealizedGainLoss = marketValue !== null ? marketValue - costBasis : null;
+  const unrealizedGainLossPercent = costBasis > 0 && unrealizedGainLoss !== null 
+    ? (unrealizedGainLoss / costBasis) * 100 
+    : null;
+  const dailyChange = livePrice?.change ?? null;
+  const dailyChangePercent = livePrice?.changePercent ?? null;
+  
+  // Format last updated time
+  const formatLastUpdated = (date: Date | null) => {
+    if (!date) return '';
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    if (diffMins < 1) return 'just now';
+    if (diffMins === 1) return '1 min ago';
+    if (diffMins < 60) return `${diffMins} mins ago`;
+    const diffHours = Math.floor(diffMins / 60);
+    if (diffHours === 1) return '1 hour ago';
+    return `${diffHours} hours ago`;
+  };
 
   return (
     <div className="space-y-8">
@@ -128,30 +166,134 @@ export default function AssetDetailPage({ params }: AssetDetailPageProps) {
         }}
       />
 
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+      {/* Price Info Row */}
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-4">
+        {/* Quantity */}
         <div className="rounded-lg border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
           <Text className="text-sm font-medium text-zinc-600 dark:text-zinc-400">Quantity</Text>
-          <Text className="mt-2 text-2xl font-semibold">{assetQuantity}</Text>
+          <Text className="mt-2 text-2xl font-semibold">{assetQuantity.toLocaleString()}</Text>
         </div>
+
+        {/* Cost Basis (was Total Value) */}
         <div className="rounded-lg border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
-          <Text className="text-sm font-medium text-zinc-600 dark:text-zinc-400">
-            Average Buy Price
-          </Text>
+          <Text className="text-sm font-medium text-zinc-600 dark:text-zinc-400">Cost Basis</Text>
           <Text className="mt-2 text-2xl font-semibold">
+            {costBasis.toLocaleString('en-US', {
+              style: 'currency',
+              currency: asset.currency || 'USD',
+            })}
+          </Text>
+          <Text className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
             {assetAveragePrice.toLocaleString('en-US', {
               style: 'currency',
               currency: asset.currency || 'USD',
-            })}
+            })}/share
           </Text>
         </div>
+
+        {/* Current Price (NEW) */}
         <div className="rounded-lg border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
-          <Text className="text-sm font-medium text-zinc-600 dark:text-zinc-400">Total Value</Text>
-          <Text className="mt-2 text-2xl font-semibold">
-            {totalValue.toLocaleString('en-US', {
-              style: 'currency',
-              currency: asset.currency || 'USD',
-            })}
-          </Text>
+          <div className="flex items-center justify-between">
+            <Text className="text-sm font-medium text-zinc-600 dark:text-zinc-400">Current Price</Text>
+            <Button
+              plain
+              onClick={() => refetchPrice()}
+              disabled={priceLoading}
+              className="!p-1"
+            >
+              <ArrowPathIcon className={`size-4 ${priceLoading ? 'animate-spin' : ''}`} />
+            </Button>
+          </div>
+          {priceLoading && !livePrice ? (
+            <div className="mt-2 space-y-2">
+              <Skeleton className="h-8 w-24" />
+              <Skeleton className="h-4 w-16" />
+            </div>
+          ) : currentPrice !== null ? (
+            <>
+              <Text className="mt-2 text-2xl font-semibold">
+                {currentPrice.toLocaleString('en-US', {
+                  style: 'currency',
+                  currency: livePrice?.currency || asset.currency || 'USD',
+                })}
+              </Text>
+              {dailyChange !== null && (
+                <div className="mt-1 flex items-center gap-1">
+                  {dailyChange >= 0 ? (
+                    <ArrowTrendingUpIcon className="size-4 text-green-600 dark:text-green-400" />
+                  ) : (
+                    <ArrowTrendingDownIcon className="size-4 text-red-600 dark:text-red-400" />
+                  )}
+                  <Text
+                    className={`text-sm font-medium ${
+                      dailyChange >= 0
+                        ? 'text-green-600 dark:text-green-400'
+                        : 'text-red-600 dark:text-red-400'
+                    }`}
+                  >
+                    {dailyChange >= 0 ? '+' : ''}
+                    {dailyChange.toLocaleString('en-US', {
+                      style: 'currency',
+                      currency: livePrice?.currency || asset.currency || 'USD',
+                    })} ({dailyChangePercent?.toFixed(2)}%)
+                  </Text>
+                </div>
+              )}
+              {priceLastUpdated && (
+                <Text className="mt-1 text-xs text-zinc-400">
+                  Updated {formatLastUpdated(priceLastUpdated)}
+                </Text>
+              )}
+            </>
+          ) : (
+            <div className="mt-2">
+              <Text className="text-lg text-zinc-400">Price unavailable</Text>
+              {priceError && (
+                <Text className="mt-1 text-xs text-red-500">{priceError.error}</Text>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Market Value (NEW) */}
+        <div className="rounded-lg border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
+          <Text className="text-sm font-medium text-zinc-600 dark:text-zinc-400">Market Value</Text>
+          {priceLoading && !livePrice ? (
+            <Skeleton className="mt-2 h-8 w-28" />
+          ) : marketValue !== null ? (
+            <>
+              <Text className="mt-2 text-2xl font-semibold">
+                {marketValue.toLocaleString('en-US', {
+                  style: 'currency',
+                  currency: livePrice?.currency || asset.currency || 'USD',
+                })}
+              </Text>
+              {unrealizedGainLoss !== null && (
+                <div className="mt-1 flex items-center gap-1">
+                  {unrealizedGainLoss >= 0 ? (
+                    <ArrowTrendingUpIcon className="size-4 text-green-600 dark:text-green-400" />
+                  ) : (
+                    <ArrowTrendingDownIcon className="size-4 text-red-600 dark:text-red-400" />
+                  )}
+                  <Text
+                    className={`text-sm font-medium ${
+                      unrealizedGainLoss >= 0
+                        ? 'text-green-600 dark:text-green-400'
+                        : 'text-red-600 dark:text-red-400'
+                    }`}
+                  >
+                    {unrealizedGainLoss >= 0 ? '+' : ''}
+                    {unrealizedGainLoss.toLocaleString('en-US', {
+                      style: 'currency',
+                      currency: livePrice?.currency || asset.currency || 'USD',
+                    })} ({unrealizedGainLossPercent?.toFixed(2)}%)
+                  </Text>
+                </div>
+              )}
+            </>
+          ) : (
+            <Text className="mt-2 text-lg text-zinc-400">—</Text>
+          )}
         </div>
       </div>
 
