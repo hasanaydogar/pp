@@ -12,6 +12,13 @@ export interface LivePrice {
   currency: string;
   marketState: 'PRE' | 'REGULAR' | 'POST' | 'CLOSED';
   lastUpdated: string;
+  // Extended data
+  dayHigh?: number;
+  dayLow?: number;
+  fiftyTwoWeekHigh?: number;
+  fiftyTwoWeekLow?: number;
+  volume?: number;
+  exchangeName?: string;
 }
 
 export interface PriceError {

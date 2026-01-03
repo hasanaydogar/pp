@@ -87,6 +87,13 @@ export async function fetchLivePrice(
       currency: meta.currency ?? currency,
       marketState: meta.marketState ?? 'CLOSED',
       lastUpdated: new Date().toISOString(),
+      // Extended data
+      dayHigh: meta.regularMarketDayHigh,
+      dayLow: meta.regularMarketDayLow,
+      fiftyTwoWeekHigh: meta.fiftyTwoWeekHigh,
+      fiftyTwoWeekLow: meta.fiftyTwoWeekLow,
+      volume: meta.regularMarketVolume,
+      exchangeName: meta.exchangeName,
     };
 
     // Update cache
