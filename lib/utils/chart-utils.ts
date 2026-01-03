@@ -57,6 +57,7 @@ export function calculateEMA(data: CandlestickData[], period: number): LineData[
 
 /**
  * Transform Yahoo Finance data to Lightweight Charts format
+ * Handles duplicate timestamps by keeping only the last value for each time
  */
 export function transformYahooData(
   timestamps: number[],
@@ -68,8 +69,9 @@ export function transformYahooData(
     volume: (number | null)[];
   }
 ): { candles: CandlestickData[]; volume: VolumeData[] } {
-  const candles: CandlestickData[] = [];
-  const volume: VolumeData[] = [];
+  // Use Map to deduplicate by time (keeps last value for each time)
+  const candleMap = new Map<string, CandlestickData>();
+  const volumeMap = new Map<string, VolumeData>();
 
   for (let i = 0; i < timestamps.length; i++) {
     // Skip null values
@@ -85,7 +87,8 @@ export function transformYahooData(
     const date = new Date(timestamps[i] * 1000);
     const time = date.toISOString().split('T')[0]; // YYYY-MM-DD
 
-    candles.push({
+    // Overwrite if duplicate time exists (keeps latest)
+    candleMap.set(time, {
       time,
       open: quote.open[i]!,
       high: quote.high[i]!,
@@ -94,12 +97,20 @@ export function transformYahooData(
     });
 
     const isUp = quote.close[i]! >= quote.open[i]!;
-    volume.push({
+    volumeMap.set(time, {
       time,
       value: quote.volume[i] || 0,
       color: isUp ? 'rgba(34, 197, 94, 0.5)' : 'rgba(239, 68, 68, 0.5)',
     });
   }
+
+  // Convert to arrays and sort by time ascending
+  const candles = Array.from(candleMap.values()).sort((a, b) => 
+    a.time.localeCompare(b.time)
+  );
+  const volume = Array.from(volumeMap.values()).sort((a, b) => 
+    a.time.localeCompare(b.time)
+  );
 
   return { candles, volume };
 }
