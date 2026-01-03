@@ -8,8 +8,10 @@ import {
   CandlestickSeries,
   HistogramSeries,
   LineSeries,
+  AreaSeries,
+  BarSeries,
 } from 'lightweight-charts';
-import { TimeRange, TIME_RANGE_CONFIG } from '@/lib/types/chart';
+import { TimeRange, TIME_RANGE_CONFIG, ChartType, CHART_TYPE_CONFIG } from '@/lib/types/chart';
 import { useChartData } from '@/lib/hooks/use-chart-data';
 import { Text } from '@/components/ui/text';
 
@@ -21,6 +23,7 @@ interface PriceChartProps {
   showSMA20?: boolean;
   showSMA50?: boolean;
   defaultRange?: TimeRange;
+  defaultChartType?: ChartType;
 }
 
 const CHART_COLORS = {
@@ -28,6 +31,8 @@ const CHART_COLORS = {
   down: '#ef4444',
   sma20: '#3b82f6',
   sma50: '#f97316',
+  line: '#8b5cf6',
+  area: '#06b6d4',
 };
 
 export function PriceChart({
@@ -38,11 +43,13 @@ export function PriceChart({
   showSMA20 = true,
   showSMA50 = true,
   defaultRange = '1M',
+  defaultChartType = 'candlestick',
 }: PriceChartProps) {
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
   const { data, loading, error, range, setRange } = useChartData(symbol, currency, defaultRange);
   const [isDark, setIsDark] = useState(false);
+  const [chartType, setChartType] = useState<ChartType>(defaultChartType);
 
   // Detect dark mode
   useEffect(() => {
@@ -77,7 +84,7 @@ export function PriceChart({
 
     const chart = createChart(chartContainerRef.current, {
       width: chartContainerRef.current.clientWidth,
-      height: height - 60, // Account for header and legend
+      height: height - 80, // Account for header and legend
       layout: {
         background: { type: ColorType.Solid, color: backgroundColor },
         textColor,
@@ -108,16 +115,50 @@ export function PriceChart({
 
     chartRef.current = chart;
 
-    // Candlestick series (v5 API)
-    const candleSeries = chart.addSeries(CandlestickSeries, {
-      upColor: CHART_COLORS.up,
-      downColor: CHART_COLORS.down,
-      borderUpColor: CHART_COLORS.up,
-      borderDownColor: CHART_COLORS.down,
-      wickUpColor: CHART_COLORS.up,
-      wickDownColor: CHART_COLORS.down,
-    });
-    candleSeries.setData(data.candles as never[]);
+    // Convert candle data to line/area format
+    const lineData = data.candles.map((c) => ({ time: c.time, value: c.close }));
+
+    // Add main price series based on chart type
+    switch (chartType) {
+      case 'candlestick': {
+        const candleSeries = chart.addSeries(CandlestickSeries, {
+          upColor: CHART_COLORS.up,
+          downColor: CHART_COLORS.down,
+          borderUpColor: CHART_COLORS.up,
+          borderDownColor: CHART_COLORS.down,
+          wickUpColor: CHART_COLORS.up,
+          wickDownColor: CHART_COLORS.down,
+        });
+        candleSeries.setData(data.candles as never[]);
+        break;
+      }
+      case 'bar': {
+        const barSeries = chart.addSeries(BarSeries, {
+          upColor: CHART_COLORS.up,
+          downColor: CHART_COLORS.down,
+        });
+        barSeries.setData(data.candles as never[]);
+        break;
+      }
+      case 'line': {
+        const lineSeries = chart.addSeries(LineSeries, {
+          color: CHART_COLORS.line,
+          lineWidth: 2,
+        });
+        lineSeries.setData(lineData as never[]);
+        break;
+      }
+      case 'area': {
+        const areaSeries = chart.addSeries(AreaSeries, {
+          lineColor: CHART_COLORS.area,
+          topColor: isDark ? 'rgba(6, 182, 212, 0.4)' : 'rgba(6, 182, 212, 0.3)',
+          bottomColor: isDark ? 'rgba(6, 182, 212, 0.0)' : 'rgba(6, 182, 212, 0.0)',
+          lineWidth: 2,
+        });
+        areaSeries.setData(lineData as never[]);
+        break;
+      }
+    }
 
     // Volume series (v5 API)
     if (showVolume && data.volume.length > 0) {
@@ -173,15 +214,37 @@ export function PriceChart({
         chartRef.current = null;
       }
     };
-  }, [data, isDark, height, showVolume, showSMA20, showSMA50, range]);
+  }, [data, isDark, height, showVolume, showSMA20, showSMA50, range, chartType]);
 
   const timeRanges = Object.keys(TIME_RANGE_CONFIG) as TimeRange[];
+  const chartTypes = Object.keys(CHART_TYPE_CONFIG) as ChartType[];
 
   return (
     <div className="rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
-      {/* Header with time range buttons */}
-      <div className="mb-4 flex items-center justify-between">
-        <Text className="font-semibold">Price Chart</Text>
+      {/* Header with controls */}
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+        <div className="flex items-center gap-3">
+          <Text className="font-semibold">Price Chart</Text>
+          {/* Chart type selector */}
+          <div className="flex rounded-lg border border-zinc-200 dark:border-zinc-700">
+            {chartTypes.map((type) => (
+              <button
+                key={type}
+                onClick={() => setChartType(type)}
+                disabled={loading}
+                title={CHART_TYPE_CONFIG[type].label}
+                className={`px-2 py-1 text-sm transition-colors first:rounded-l-md last:rounded-r-md disabled:opacity-50 ${
+                  chartType === type
+                    ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900'
+                    : 'bg-zinc-50 text-zinc-600 hover:bg-zinc-100 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700'
+                }`}
+              >
+                {CHART_TYPE_CONFIG[type].icon}
+              </button>
+            ))}
+          </div>
+        </div>
+        {/* Time range selector */}
         <div className="flex gap-1">
           {timeRanges.map((r) => (
             <button
@@ -204,25 +267,25 @@ export function PriceChart({
       {loading && !data ? (
         <div
           className="w-full animate-pulse rounded-lg bg-zinc-100 dark:bg-zinc-800"
-          style={{ height: height - 60 }}
+          style={{ height: height - 80 }}
         />
       ) : error ? (
         <div
           className="flex items-center justify-center rounded bg-zinc-100 dark:bg-zinc-800"
-          style={{ height: height - 60 }}
+          style={{ height: height - 80 }}
         >
           <Text className="text-zinc-500">Chart data unavailable</Text>
         </div>
       ) : data && data.candles.length > 0 ? (
         <div
           ref={chartContainerRef}
-          style={{ height: height - 60 }}
+          style={{ height: height - 80 }}
           className={loading ? 'opacity-50' : ''}
         />
       ) : (
         <div
           className="flex items-center justify-center rounded bg-zinc-100 dark:bg-zinc-800"
-          style={{ height: height - 60 }}
+          style={{ height: height - 80 }}
         >
           <Text className="text-zinc-500">No data available</Text>
         </div>

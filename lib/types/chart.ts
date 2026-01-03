@@ -2,6 +2,15 @@
 
 export type TimeRange = '1D' | '1W' | '1M' | '3M' | '1Y' | '5Y' | 'MAX';
 
+export type ChartType = 'candlestick' | 'line' | 'area' | 'bar';
+
+export const CHART_TYPE_CONFIG: Record<ChartType, { label: string; icon: string }> = {
+  candlestick: { label: 'Mum', icon: '📊' },
+  line: { label: 'Çizgi', icon: '📈' },
+  area: { label: 'Alan', icon: '📉' },
+  bar: { label: 'Bar', icon: '📶' },
+};
+
 export interface TimeRangeConfig {
   label: string;
   yahooRange: string;
