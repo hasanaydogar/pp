@@ -183,23 +183,31 @@ export default function AssetDetailPage({ params }: AssetDetailPageProps) {
         }}
       />
 
-      {/* Price Info Row */}
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-4">
+      {/* Price Info Row - Stats with shared borders style */}
+      <div className="grid grid-cols-1 gap-px overflow-hidden rounded-xl bg-zinc-200 dark:bg-zinc-700 sm:grid-cols-2 lg:grid-cols-4">
         {/* Quantity */}
-        <div className="rounded-lg border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
-          <Text className="text-sm font-medium text-zinc-600 dark:text-zinc-400">Quantity</Text>
-          <Text className="mt-2 text-2xl font-semibold">{assetQuantity.toLocaleString()}</Text>
+        <div className="bg-white px-4 py-6 dark:bg-zinc-900 sm:px-6">
+          <Text className="text-sm font-medium text-zinc-500 dark:text-zinc-400">Quantity</Text>
+          <p className="mt-2 flex items-baseline gap-x-2">
+            <span className="text-3xl font-semibold tracking-tight text-zinc-900 dark:text-white">
+              {assetQuantity.toLocaleString()}
+            </span>
+            <span className="text-sm text-zinc-500 dark:text-zinc-400">shares</span>
+          </p>
         </div>
 
-        {/* Cost Basis (was Total Value) */}
-        <div className="rounded-lg border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
-          <Text className="text-sm font-medium text-zinc-600 dark:text-zinc-400">Cost Basis</Text>
-          <Text className="mt-2 text-2xl font-semibold">
-            {costBasis.toLocaleString('en-US', {
-              style: 'currency',
-              currency: asset.currency || 'USD',
-            })}
-          </Text>
+        {/* Cost Basis */}
+        <div className="bg-white px-4 py-6 dark:bg-zinc-900 sm:px-6">
+          <Text className="text-sm font-medium text-zinc-500 dark:text-zinc-400">Cost Basis</Text>
+          <p className="mt-2 flex items-baseline gap-x-2">
+            <span className="text-3xl font-semibold tracking-tight text-zinc-900 dark:text-white">
+              {costBasis.toLocaleString('en-US', {
+                style: 'currency',
+                currency: asset.currency || 'USD',
+                maximumFractionDigits: 0,
+              })}
+            </span>
+          </p>
           <Text className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
             {assetAveragePrice.toLocaleString('en-US', {
               style: 'currency',
@@ -208,54 +216,45 @@ export default function AssetDetailPage({ params }: AssetDetailPageProps) {
           </Text>
         </div>
 
-        {/* Current Price (NEW) */}
-        <div className="rounded-lg border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
+        {/* Current Price */}
+        <div className="bg-white px-4 py-6 dark:bg-zinc-900 sm:px-6">
           <div className="flex items-center justify-between">
-            <Text className="text-sm font-medium text-zinc-600 dark:text-zinc-400">Current Price</Text>
+            <Text className="text-sm font-medium text-zinc-500 dark:text-zinc-400">Current Price</Text>
             <Button
               plain
               onClick={() => refetchPrice()}
               disabled={priceLoading}
               className="!p-1"
             >
-              <ArrowPathIcon className={`size-4 ${priceLoading ? 'animate-spin' : ''}`} />
+              <ArrowPathIcon className={`size-4 text-zinc-400 ${priceLoading ? 'animate-spin' : ''}`} />
             </Button>
           </div>
           {priceLoading && !livePrice ? (
             <div className="mt-2 space-y-2">
-              <Skeleton className="h-8 w-24" />
-              <Skeleton className="h-4 w-16" />
+              <Skeleton height={32} width="70%" />
+              <Skeleton height={16} width="40%" />
             </div>
           ) : currentPrice !== null ? (
             <>
-              <Text className="mt-2 text-2xl font-semibold">
-                {currentPrice.toLocaleString('en-US', {
-                  style: 'currency',
-                  currency: livePrice?.currency || asset.currency || 'USD',
-                })}
-              </Text>
-              {dailyChange !== null && (
-                <div className="mt-1 flex items-center gap-1">
-                  {dailyChange >= 0 ? (
-                    <ArrowTrendingUpIcon className="size-4 text-green-600 dark:text-green-400" />
-                  ) : (
-                    <ArrowTrendingDownIcon className="size-4 text-red-600 dark:text-red-400" />
-                  )}
-                  <Text
-                    className={`text-sm font-medium ${
-                      dailyChange >= 0
-                        ? 'text-green-600 dark:text-green-400'
-                        : 'text-red-600 dark:text-red-400'
+              <p className="mt-2 flex items-baseline gap-x-2">
+                <span className="text-3xl font-semibold tracking-tight text-zinc-900 dark:text-white">
+                  {currentPrice.toLocaleString('en-US', {
+                    style: 'currency',
+                    currency: livePrice?.currency || asset.currency || 'USD',
+                  })}
+                </span>
+                {dailyChangePercent !== null && (
+                  <span
+                    className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ${
+                      dailyChange !== null && dailyChange >= 0
+                        ? 'bg-green-50 text-green-700 ring-green-600/20 dark:bg-green-500/10 dark:text-green-400 dark:ring-green-500/20'
+                        : 'bg-red-50 text-red-700 ring-red-600/20 dark:bg-red-500/10 dark:text-red-400 dark:ring-red-500/20'
                     }`}
                   >
-                    {dailyChange >= 0 ? '+' : ''}
-                    {dailyChange.toLocaleString('en-US', {
-                      style: 'currency',
-                      currency: livePrice?.currency || asset.currency || 'USD',
-                    })} ({dailyChangePercent?.toFixed(2)}%)
-                  </Text>
-                </div>
-              )}
+                    {dailyChange !== null && dailyChange >= 0 ? '↑' : '↓'} {Math.abs(dailyChangePercent).toFixed(2)}%
+                  </span>
+                )}
+              </p>
               {priceLastUpdated && (
                 <Text className="mt-1 text-xs text-zinc-400">
                   Updated {formatLastUpdated(priceLastUpdated)}
@@ -272,40 +271,45 @@ export default function AssetDetailPage({ params }: AssetDetailPageProps) {
           )}
         </div>
 
-        {/* Market Value (NEW) */}
-        <div className="rounded-lg border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
-          <Text className="text-sm font-medium text-zinc-600 dark:text-zinc-400">Market Value</Text>
+        {/* Market Value */}
+        <div className="bg-white px-4 py-6 dark:bg-zinc-900 sm:px-6">
+          <Text className="text-sm font-medium text-zinc-500 dark:text-zinc-400">Market Value</Text>
           {priceLoading && !livePrice ? (
-            <Skeleton className="mt-2 h-8 w-28" />
+            <Skeleton className="mt-2" height={32} width="80%" />
           ) : marketValue !== null ? (
             <>
-              <Text className="mt-2 text-2xl font-semibold">
-                {marketValue.toLocaleString('en-US', {
-                  style: 'currency',
-                  currency: livePrice?.currency || asset.currency || 'USD',
-                })}
-              </Text>
-              {unrealizedGainLoss !== null && (
-                <div className="mt-1 flex items-center gap-1">
-                  {unrealizedGainLoss >= 0 ? (
-                    <ArrowTrendingUpIcon className="size-4 text-green-600 dark:text-green-400" />
-                  ) : (
-                    <ArrowTrendingDownIcon className="size-4 text-red-600 dark:text-red-400" />
-                  )}
-                  <Text
-                    className={`text-sm font-medium ${
-                      unrealizedGainLoss >= 0
-                        ? 'text-green-600 dark:text-green-400'
-                        : 'text-red-600 dark:text-red-400'
+              <p className="mt-2 flex items-baseline gap-x-2">
+                <span className="text-3xl font-semibold tracking-tight text-zinc-900 dark:text-white">
+                  {marketValue.toLocaleString('en-US', {
+                    style: 'currency',
+                    currency: livePrice?.currency || asset.currency || 'USD',
+                    maximumFractionDigits: 0,
+                  })}
+                </span>
+                {unrealizedGainLossPercent !== null && (
+                  <span
+                    className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ${
+                      unrealizedGainLoss !== null && unrealizedGainLoss >= 0
+                        ? 'bg-green-50 text-green-700 ring-green-600/20 dark:bg-green-500/10 dark:text-green-400 dark:ring-green-500/20'
+                        : 'bg-red-50 text-red-700 ring-red-600/20 dark:bg-red-500/10 dark:text-red-400 dark:ring-red-500/20'
                     }`}
                   >
-                    {unrealizedGainLoss >= 0 ? '+' : ''}
-                    {unrealizedGainLoss.toLocaleString('en-US', {
-                      style: 'currency',
-                      currency: livePrice?.currency || asset.currency || 'USD',
-                    })} ({unrealizedGainLossPercent?.toFixed(2)}%)
-                  </Text>
-                </div>
+                    {unrealizedGainLoss !== null && unrealizedGainLoss >= 0 ? '↑' : '↓'} {Math.abs(unrealizedGainLossPercent).toFixed(2)}%
+                  </span>
+                )}
+              </p>
+              {unrealizedGainLoss !== null && (
+                <Text className={`mt-1 text-sm font-medium ${
+                  unrealizedGainLoss >= 0
+                    ? 'text-green-600 dark:text-green-400'
+                    : 'text-red-600 dark:text-red-400'
+                }`}>
+                  {unrealizedGainLoss >= 0 ? '+' : ''}
+                  {unrealizedGainLoss.toLocaleString('en-US', {
+                    style: 'currency',
+                    currency: livePrice?.currency || asset.currency || 'USD',
+                  })}
+                </Text>
               )}
             </>
           ) : (
@@ -314,63 +318,73 @@ export default function AssetDetailPage({ params }: AssetDetailPageProps) {
         </div>
       </div>
 
-      {/* Market Data Row */}
+      {/* Market Data Row - Secondary stats */}
       {livePrice && (livePrice.dayHigh || livePrice.fiftyTwoWeekHigh || livePrice.volume) && (
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+        <div className="grid grid-cols-2 gap-px overflow-hidden rounded-xl bg-zinc-200 dark:bg-zinc-700 lg:grid-cols-4">
           {/* Day Range */}
           {livePrice.dayLow !== undefined && livePrice.dayHigh !== undefined && (
-            <div className="rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
+            <div className="bg-white px-4 py-4 dark:bg-zinc-900 sm:px-6">
               <Text className="text-xs font-medium text-zinc-500 dark:text-zinc-400">Day Range</Text>
-              <div className="mt-1.5 flex items-center justify-between text-sm">
-                <Text className="font-medium text-red-600 dark:text-red-400">
+              <div className="mt-2 flex items-center gap-2">
+                <span className="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/20 dark:bg-red-500/10 dark:text-red-400 dark:ring-red-500/20">
                   {livePrice.dayLow.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                </Text>
-                <Text className="text-zinc-400">—</Text>
-                <Text className="font-medium text-green-600 dark:text-green-400">
+                </span>
+                <span className="text-zinc-300 dark:text-zinc-600">→</span>
+                <span className="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20 dark:bg-green-500/10 dark:text-green-400 dark:ring-green-500/20">
                   {livePrice.dayHigh.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                </Text>
+                </span>
               </div>
             </div>
           )}
 
           {/* 52 Week Range */}
           {livePrice.fiftyTwoWeekLow !== undefined && livePrice.fiftyTwoWeekHigh !== undefined && (
-            <div className="rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
+            <div className="bg-white px-4 py-4 dark:bg-zinc-900 sm:px-6">
               <Text className="text-xs font-medium text-zinc-500 dark:text-zinc-400">52 Week Range</Text>
-              <div className="mt-1.5 flex items-center justify-between text-sm">
-                <Text className="font-medium text-red-600 dark:text-red-400">
+              <div className="mt-2 flex items-center gap-2">
+                <span className="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/20 dark:bg-red-500/10 dark:text-red-400 dark:ring-red-500/20">
                   {livePrice.fiftyTwoWeekLow.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                </Text>
-                <Text className="text-zinc-400">—</Text>
-                <Text className="font-medium text-green-600 dark:text-green-400">
+                </span>
+                <span className="text-zinc-300 dark:text-zinc-600">→</span>
+                <span className="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20 dark:bg-green-500/10 dark:text-green-400 dark:ring-green-500/20">
                   {livePrice.fiftyTwoWeekHigh.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                </Text>
+                </span>
               </div>
             </div>
           )}
 
           {/* Volume */}
           {livePrice.volume !== undefined && (
-            <div className="rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
+            <div className="bg-white px-4 py-4 dark:bg-zinc-900 sm:px-6">
               <Text className="text-xs font-medium text-zinc-500 dark:text-zinc-400">Volume</Text>
-              <Text className="mt-1.5 text-sm font-semibold">
+              <p className="mt-2 text-xl font-semibold tracking-tight text-zinc-900 dark:text-white">
                 {livePrice.volume >= 1000000
                   ? `${(livePrice.volume / 1000000).toFixed(2)}M`
                   : livePrice.volume >= 1000
                     ? `${(livePrice.volume / 1000).toFixed(1)}K`
                     : livePrice.volume.toLocaleString()}
-              </Text>
+              </p>
             </div>
           )}
 
           {/* Exchange */}
           {livePrice.exchangeName && (
-            <div className="rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
+            <div className="bg-white px-4 py-4 dark:bg-zinc-900 sm:px-6">
               <Text className="text-xs font-medium text-zinc-500 dark:text-zinc-400">Exchange</Text>
-              <Text className="mt-1.5 text-sm font-semibold">{livePrice.exchangeName}</Text>
-              <Text className="text-xs text-zinc-400">
-                {livePrice.marketState === 'REGULAR' ? '🟢 Open' : '🔴 Closed'}
-              </Text>
+              <div className="mt-2 flex items-center gap-2">
+                <span className="text-xl font-semibold tracking-tight text-zinc-900 dark:text-white">
+                  {livePrice.exchangeName}
+                </span>
+                <span
+                  className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
+                    livePrice.marketState === 'REGULAR'
+                      ? 'bg-green-100 text-green-800 dark:bg-green-500/20 dark:text-green-400'
+                      : 'bg-zinc-100 text-zinc-600 dark:bg-zinc-700 dark:text-zinc-400'
+                  }`}
+                >
+                  {livePrice.marketState === 'REGULAR' ? 'Open' : 'Closed'}
+                </span>
+              </div>
             </div>
           )}
         </div>
