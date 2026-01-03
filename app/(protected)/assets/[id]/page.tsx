@@ -140,14 +140,29 @@ export default function AssetDetailPage({ params }: AssetDetailPageProps) {
     return `${diffHours} hours ago`;
   };
 
+  // Get company name from live price or asset
+  const companyName = livePrice?.longName || livePrice?.shortName || asset.name || asset.symbol;
+
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <Heading level={1}>{asset.symbol}</Heading>
-          <Text className="mt-2">
-            {asset.name || asset.symbol} • {asset.type}
-          </Text>
+          <div className="flex items-center gap-3">
+            <Heading level={1}>{asset.symbol}</Heading>
+            <span className="inline-flex items-center rounded-md bg-zinc-100 px-2 py-1 text-xs font-medium text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">
+              {asset.type}
+            </span>
+          </div>
+          {companyName && companyName !== asset.symbol && (
+            <Text className="mt-1 text-lg text-zinc-600 dark:text-zinc-400">
+              {companyName}
+            </Text>
+          )}
+          {livePrice?.exchangeName && (
+            <Text className="mt-0.5 text-sm text-zinc-500 dark:text-zinc-500">
+              {livePrice.exchangeName}
+            </Text>
+          )}
         </div>
         <div className="flex items-center gap-3">
           <Link href={`/assets/${asset.id}/transactions/new`}>
@@ -273,12 +288,25 @@ export default function AssetDetailPage({ params }: AssetDetailPageProps) {
 
         {/* Market Value */}
         <div className="bg-white px-4 py-6 dark:bg-zinc-900 sm:px-6">
-          <Text className="text-sm font-medium text-zinc-500 dark:text-zinc-400">Market Value</Text>
+          <div className="flex items-center justify-between">
+            <Text className="text-sm font-medium text-zinc-500 dark:text-zinc-400">Market Value</Text>
+            {unrealizedGainLossPercent !== null && (
+              <span
+                className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ${
+                  unrealizedGainLoss !== null && unrealizedGainLoss >= 0
+                    ? 'bg-green-50 text-green-700 ring-green-600/20 dark:bg-green-500/10 dark:text-green-400 dark:ring-green-500/20'
+                    : 'bg-red-50 text-red-700 ring-red-600/20 dark:bg-red-500/10 dark:text-red-400 dark:ring-red-500/20'
+                }`}
+              >
+                {unrealizedGainLoss !== null && unrealizedGainLoss >= 0 ? '↑' : '↓'} {Math.abs(unrealizedGainLossPercent).toFixed(2)}%
+              </span>
+            )}
+          </div>
           {priceLoading && !livePrice ? (
             <Skeleton className="mt-2" height={32} width="80%" />
           ) : marketValue !== null ? (
             <>
-              <p className="mt-2 flex items-baseline gap-x-2">
+              <p className="mt-2">
                 <span className="text-3xl font-semibold tracking-tight text-zinc-900 dark:text-white">
                   {marketValue.toLocaleString('en-US', {
                     style: 'currency',
@@ -286,17 +314,6 @@ export default function AssetDetailPage({ params }: AssetDetailPageProps) {
                     maximumFractionDigits: 0,
                   })}
                 </span>
-                {unrealizedGainLossPercent !== null && (
-                  <span
-                    className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ${
-                      unrealizedGainLoss !== null && unrealizedGainLoss >= 0
-                        ? 'bg-green-50 text-green-700 ring-green-600/20 dark:bg-green-500/10 dark:text-green-400 dark:ring-green-500/20'
-                        : 'bg-red-50 text-red-700 ring-red-600/20 dark:bg-red-500/10 dark:text-red-400 dark:ring-red-500/20'
-                    }`}
-                  >
-                    {unrealizedGainLoss !== null && unrealizedGainLoss >= 0 ? '↑' : '↓'} {Math.abs(unrealizedGainLossPercent).toFixed(2)}%
-                  </span>
-                )}
               </p>
               {unrealizedGainLoss !== null && (
                 <Text className={`mt-1 text-sm font-medium ${

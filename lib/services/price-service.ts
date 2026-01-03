@@ -94,6 +94,9 @@ export async function fetchLivePrice(
       fiftyTwoWeekLow: meta.fiftyTwoWeekLow,
       volume: meta.regularMarketVolume,
       exchangeName: meta.exchangeName,
+      // Company info (from meta)
+      shortName: meta.shortName,
+      longName: meta.longName,
     };
 
     // Update cache

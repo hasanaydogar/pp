@@ -19,6 +19,11 @@ export interface LivePrice {
   fiftyTwoWeekLow?: number;
   volume?: number;
   exchangeName?: string;
+  // Company info
+  shortName?: string;
+  longName?: string;
+  sector?: string;
+  industry?: string;
 }
 
 export interface PriceError {
