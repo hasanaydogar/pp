@@ -17,6 +17,23 @@ import Link from 'next/link';
 import { PlusIcon, PencilIcon, TrashIcon, ArrowTrendingUpIcon, ArrowTrendingDownIcon, ArrowPathIcon } from '@heroicons/react/20/solid';
 import { TransactionType } from '@/lib/types/portfolio';
 import { DeleteTransactionDialog } from '@/components/transactions/delete-transaction-dialog';
+import dynamic from 'next/dynamic';
+
+// Dynamic import to avoid SSR issues with Lightweight Charts
+const PriceChart = dynamic(
+  () => import('@/components/charts/price-chart').then((mod) => mod.PriceChart),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
+        <div className="mb-4 flex items-center justify-between">
+          <span className="font-semibold text-zinc-900 dark:text-white">Price Chart</span>
+        </div>
+        <div className="h-[340px] animate-pulse rounded bg-zinc-100 dark:bg-zinc-800" />
+      </div>
+    ),
+  }
+);
 
 interface AssetDetailPageProps {
   params: Promise<{ id: string }>;
@@ -357,6 +374,19 @@ export default function AssetDetailPage({ params }: AssetDetailPageProps) {
             </div>
           )}
         </div>
+      )}
+
+      {/* Price Chart */}
+      {asset.symbol && (
+        <PriceChart
+          symbol={asset.symbol}
+          currency={asset.currency || 'USD'}
+          height={400}
+          showVolume={true}
+          showSMA20={true}
+          showSMA50={true}
+          defaultRange="1M"
+        />
       )}
 
       {asset.notes && (
