@@ -37,14 +37,18 @@ import {
   CurrencyDollarIcon,
 } from '@heroicons/react/16/solid';
 import {
-  Cog6ToothIcon,
-  HomeIcon,
   WalletIcon,
   ChartBarIcon,
+  ChartPieIcon,
+  FlagIcon,
+  ArrowTrendingUpIcon,
+  BanknotesIcon,
+  SparklesIcon,
 } from '@heroicons/react/20/solid';
 import { usePathname, useRouter } from 'next/navigation';
 import React from 'react';
 import { useExchangeRates, formatLastUpdate } from '@/lib/hooks/use-exchange-rates';
+import { createSlug } from '@/lib/utils/slug';
 
 function AccountDropdownMenu({ anchor }: { anchor: 'top start' | 'bottom end' }) {
   const router = useRouter();
@@ -198,12 +202,9 @@ export function ApplicationLayoutClient({
                     key={portfolio.id}
                     onClick={() => {
                       setActivePortfolioId(portfolio.id);
-                      // Refresh the page to update Server Components with new portfolio
-                      router.refresh();
-                      // If on a portfolio-specific page, navigate to the active portfolio
-                      if (pathname.startsWith('/portfolios/')) {
-                        router.push(`/portfolios/${portfolio.id}`);
-                      }
+                      // Navigate to the portfolio dashboard with new URL structure
+                      const slug = createSlug(portfolio.name);
+                      router.push(`/p/${slug}`);
                     }}
                   >
                     <Avatar 
@@ -226,22 +227,56 @@ export function ApplicationLayoutClient({
           </SidebarHeader>
 
           <SidebarBody>
+            {/* Hesap Seviyesi - Tüm Portföyler */}
             <SidebarSection>
-              <SidebarItem href="/dashboard" current={pathname === '/dashboard'}>
-                <HomeIcon />
-                <SidebarLabel>Dashboard</SidebarLabel>
+              <SidebarItem 
+                href="/summary" 
+                current={pathname === '/summary'}
+              >
+                <ChartPieIcon />
+                <SidebarLabel>Toplam Özet</SidebarLabel>
               </SidebarItem>
-              <SidebarItem href="/assets" current={pathname.startsWith('/assets')}>
+            </SidebarSection>
+
+            {/* Seçili Portföy Menüsü */}
+            <SidebarSection className="border-t border-zinc-200 dark:border-zinc-700 pt-4 mt-2">
+              <SidebarLabel className="px-2 text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mb-2">
+                {activePortfolio?.name || 'Portföy'}
+              </SidebarLabel>
+              <SidebarItem 
+                href={activePortfolio ? `/p/${createSlug(activePortfolio.name)}` : '/dashboard'} 
+                current={pathname === '/dashboard' || (pathname.startsWith('/p/') && !pathname.includes('/analysis') && !pathname.includes('/goals') && !pathname.includes('/cash') && !pathname.includes('/projection'))}
+              >
                 <WalletIcon />
-                <SidebarLabel>My Assets</SidebarLabel>
+                <SidebarLabel>Varlıklar</SidebarLabel>
               </SidebarItem>
-              <SidebarItem href="/analysis" current={pathname.startsWith('/analysis')}>
-                <ChartBarIcon />
-                <SidebarLabel>AI Analysis</SidebarLabel>
+              <SidebarItem 
+                href={activePortfolio ? `/p/${createSlug(activePortfolio.name)}/cash` : '/cash'} 
+                current={pathname.includes('/cash')}
+              >
+                <BanknotesIcon />
+                <SidebarLabel>Nakit & Temettü</SidebarLabel>
               </SidebarItem>
-              <SidebarItem href="/settings" current={pathname.startsWith('/settings')}>
-                <Cog6ToothIcon />
-                <SidebarLabel>Settings</SidebarLabel>
+              <SidebarItem 
+                href={activePortfolio ? `/p/${createSlug(activePortfolio.name)}/projection` : '/projection'} 
+                current={pathname.includes('/projection')}
+              >
+                <ArrowTrendingUpIcon />
+                <SidebarLabel>Projeksiyon</SidebarLabel>
+              </SidebarItem>
+              <SidebarItem 
+                href={activePortfolio ? `/p/${createSlug(activePortfolio.name)}/analysis` : '/analysis'} 
+                current={pathname.includes('/analysis')}
+              >
+                <SparklesIcon />
+                <SidebarLabel>AI Danışmanı</SidebarLabel>
+              </SidebarItem>
+              <SidebarItem 
+                href={activePortfolio ? `/p/${createSlug(activePortfolio.name)}/goals` : '/goals'} 
+                current={pathname.includes('/goals')}
+              >
+                <FlagIcon />
+                <SidebarLabel>Portföy Amacı</SidebarLabel>
               </SidebarItem>
             </SidebarSection>
 

@@ -40,9 +40,10 @@ interface TransactionFormProps {
     notes?: string | null;
   };
   onSuccess?: () => void;
+  redirectUrl?: string;
 }
 
-export function TransactionForm({ assetId, transactionId, initialData, onSuccess }: TransactionFormProps) {
+export function TransactionForm({ assetId, transactionId, initialData, onSuccess, redirectUrl }: TransactionFormProps) {
   const router = useRouter();
   const { asset, loading: assetLoading } = useAsset(assetId);
   const isEditMode = !!transactionId;
@@ -200,6 +201,8 @@ export function TransactionForm({ assetId, transactionId, initialData, onSuccess
 
         if (onSuccess) {
           onSuccess();
+        } else if (redirectUrl) {
+          router.push(redirectUrl);
         } else {
           router.push(`/assets/${assetId}`);
         }
@@ -209,6 +212,8 @@ export function TransactionForm({ assetId, transactionId, initialData, onSuccess
 
         if (onSuccess) {
           onSuccess();
+        } else if (redirectUrl) {
+          router.push(redirectUrl);
         } else {
           router.push(`/assets/${assetId}`);
         }

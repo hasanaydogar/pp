@@ -5,7 +5,13 @@
 - **SpecPulse Version**: 2.7.1
 - **AI Assistant**: Not configured
 
-## Active Feature: 008-asset-live-prices
+## Active Feature: 011-architecture-redesign
+- Feature ID: 011
+- Branch: 011-architecture-redesign
+- Started: 2026-01-03
+- Description: Portfolio mimarisi yeniden tasarımı - Cash management, policies, sectors, summary
+
+## Previous Feature: 008-asset-live-prices
 - Feature ID: 008
 - Branch: 008-asset-live-prices
 - Started: 2026-01-03

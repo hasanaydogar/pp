@@ -13,6 +13,7 @@ import { useCurrency } from '@/lib/context/currency-context';
 import { useAssets } from '@/lib/hooks/use-assets';
 import { formatCurrency } from '@/lib/utils/currency';
 import { CurrencyDisplay } from '@/components/ui/currency-display';
+import { createSlug, getAssetUrl } from '@/lib/utils/slug';
 
 export default function DashboardContentClient() {
   const { activePortfolioId, portfolios } = usePortfolio();
@@ -137,54 +138,59 @@ export default function DashboardContentClient() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {topAssets.map((asset) => (
-                  <TableRow key={asset.id}>
-                    <TableCell>
-                      <Link href={`/assets/${asset.id}`} className="text-indigo-600 hover:text-indigo-500 dark:text-indigo-400">
-                        {asset.symbol}
-                      </Link>
-                    </TableCell>
-                    <TableCell>{asset.name}</TableCell>
-                    <TableCell>{asset.type}</TableCell>
-                    <TableCell className="text-right">
-                      <CurrencyDisplay 
-                        amount={asset.value} 
-                        currency={asset.currency}
-                        format="inline"
-                      />
-                    </TableCell>
-                    <TableCell
-                      className={clsx(
-                        'text-right',
-                        asset.gainLoss >= 0 ? 'text-green-600' : 'text-red-600'
-                      )}
-                    >
-                      {asset.gainLoss >= 0 ? '+' : ''}
-                      <CurrencyDisplay 
-                        amount={Math.abs(asset.gainLoss)} 
-                        currency={asset.currency}
-                        format="converted-only"
-                      />
-                      {asset.gainLossPercentage !== 0 && ` (${asset.gainLossPercentage.toFixed(2)}%)`}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center justify-end gap-2">
-                        <Link href={`/assets/${asset.id}/transactions/new?type=BUY`}>
-                          <Button plain className="text-green-600 hover:text-green-700 dark:text-green-400">
-                            <ArrowUpIcon className="mr-1 size-4" />
-                            Buy
-                          </Button>
+                {topAssets.map((asset) => {
+                  const portfolioSlug = activePortfolio ? createSlug(activePortfolio.name) : '';
+                  const assetUrl = portfolioSlug ? getAssetUrl(portfolioSlug, asset.symbol) : `/assets/${asset.id}`;
+                  
+                  return (
+                    <TableRow key={asset.id}>
+                      <TableCell>
+                        <Link href={assetUrl} className="text-indigo-600 hover:text-indigo-500 dark:text-indigo-400">
+                          {asset.symbol}
                         </Link>
-                        <Link href={`/assets/${asset.id}/transactions/new?type=SELL`}>
-                          <Button plain className="text-red-600 hover:text-red-700 dark:text-red-400">
-                            <ArrowDownIcon className="mr-1 size-4" />
-                            Sell
-                          </Button>
-                        </Link>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                      </TableCell>
+                      <TableCell>{asset.name}</TableCell>
+                      <TableCell>{asset.type}</TableCell>
+                      <TableCell className="text-right">
+                        <CurrencyDisplay 
+                          amount={asset.value} 
+                          currency={asset.currency}
+                          format="inline"
+                        />
+                      </TableCell>
+                      <TableCell
+                        className={clsx(
+                          'text-right',
+                          asset.gainLoss >= 0 ? 'text-green-600' : 'text-red-600'
+                        )}
+                      >
+                        {asset.gainLoss >= 0 ? '+' : ''}
+                        <CurrencyDisplay 
+                          amount={Math.abs(asset.gainLoss)} 
+                          currency={asset.currency}
+                          format="converted-only"
+                        />
+                        {asset.gainLossPercentage !== 0 && ` (${asset.gainLossPercentage.toFixed(2)}%)`}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center justify-end gap-2">
+                          <Link href={`${assetUrl}/transactions/new?type=BUY`}>
+                            <Button plain className="text-green-600 hover:text-green-700 dark:text-green-400">
+                              <ArrowUpIcon className="mr-1 size-4" />
+                              Buy
+                            </Button>
+                          </Link>
+                          <Link href={`${assetUrl}/transactions/new?type=SELL`}>
+                            <Button plain className="text-red-600 hover:text-red-700 dark:text-red-400">
+                              <ArrowDownIcon className="mr-1 size-4" />
+                              Sell
+                            </Button>
+                          </Link>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           </div>

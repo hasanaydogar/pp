@@ -39,6 +39,7 @@ interface AssetFormProps {
     notes?: string | null;
   };
   onSuccess?: () => void;
+  redirectUrl?: string;
 }
 
 const ASSET_TYPE_OPTIONS = [
@@ -54,7 +55,7 @@ const ASSET_TYPE_OPTIONS = [
   { value: AssetType.OTHER, label: 'Other' },
 ];
 
-export function AssetForm({ portfolioId, assetId, initialData, onSuccess }: AssetFormProps) {
+export function AssetForm({ portfolioId, assetId, initialData, onSuccess, redirectUrl }: AssetFormProps) {
   const router = useRouter();
   const isEditMode = !!assetId;
   
@@ -188,6 +189,8 @@ export function AssetForm({ portfolioId, assetId, initialData, onSuccess }: Asse
 
         if (onSuccess) {
           onSuccess();
+        } else if (redirectUrl) {
+          router.push(redirectUrl);
         } else {
           router.push(`/assets/${assetId}`);
         }
@@ -219,6 +222,8 @@ export function AssetForm({ portfolioId, assetId, initialData, onSuccess }: Asse
 
         if (onSuccess) {
           onSuccess();
+        } else if (redirectUrl) {
+          router.push(redirectUrl);
         } else {
           router.push(`/assets/${response.id}`);
         }
