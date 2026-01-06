@@ -35,6 +35,10 @@ import {
   HomeIcon,
   WalletIcon,
   ChartBarIcon,
+  CurrencyDollarIcon,
+  ArrowTrendingUpIcon,
+  SparklesIcon,
+  FlagIcon,
 } from '@heroicons/react/20/solid'
 import { usePathname, useRouter } from 'next/navigation'
 
@@ -145,19 +149,23 @@ export function ApplicationLayout({
             <SidebarSection>
               <SidebarItem href="/dashboard" current={pathname === '/dashboard'}>
                 <HomeIcon />
-                <SidebarLabel>Dashboard</SidebarLabel>
+                <SidebarLabel>Varlıklar</SidebarLabel>
               </SidebarItem>
-              <SidebarItem href="/assets" current={pathname.startsWith('/assets')}>
-                <WalletIcon />
-                <SidebarLabel>My Assets</SidebarLabel>
+              <SidebarItem href="/cash" current={pathname.startsWith('/cash')}>
+                <CurrencyDollarIcon />
+                <SidebarLabel>Nakit & Temettü</SidebarLabel>
+              </SidebarItem>
+              <SidebarItem href="/projection" current={pathname.startsWith('/projection')}>
+                <ArrowTrendingUpIcon />
+                <SidebarLabel>Projeksiyon</SidebarLabel>
               </SidebarItem>
               <SidebarItem href="/analysis" current={pathname.startsWith('/analysis')}>
-                <ChartBarIcon />
-                <SidebarLabel>AI Analysis</SidebarLabel>
+                <SparklesIcon />
+                <SidebarLabel>AI Danışmanı</SidebarLabel>
               </SidebarItem>
-              <SidebarItem href="/settings" current={pathname.startsWith('/settings')}>
-                <Cog6ToothIcon />
-                <SidebarLabel>Settings</SidebarLabel>
+              <SidebarItem href="/goals" current={pathname.startsWith('/goals')}>
+                <FlagIcon />
+                <SidebarLabel>Portföy Amacı</SidebarLabel>
               </SidebarItem>
             </SidebarSection>
 

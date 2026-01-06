@@ -22,6 +22,7 @@ import {
   createCostBasisLot,
   calculateFIFOCostBasis,
 } from '@/lib/api/cost-basis';
+import { createCashTransactionForAsset } from '@/lib/services/cash-service';
 import { TransactionType } from '@/lib/types/portfolio';
 import { z } from 'zod';
 
@@ -203,6 +204,33 @@ export async function POST(
         );
       }
 
+      // Create cash transaction for BUY (deduct from cash)
+      try {
+        // Get asset info for portfolio and symbol
+        const { data: assetInfo } = await supabase
+          .from('assets')
+          .select('portfolio_id, symbol, currency')
+          .eq('id', id)
+          .single();
+
+        if (assetInfo) {
+          const totalCost = validatedData.amount * validatedData.price;
+          await createCashTransactionForAsset(
+            assetInfo.portfolio_id,
+            assetInfo.symbol,
+            transaction.id,
+            id,
+            'BUY',
+            totalCost,
+            validatedData.date || new Date().toISOString().split('T')[0],
+            assetInfo.currency || validatedData.currency || 'TRY'
+          );
+        }
+      } catch (cashError) {
+        // Log but don't fail - cash tracking is optional
+        console.error('Failed to create cash transaction for BUY:', cashError);
+      }
+
       return NextResponse.json({ data: transaction }, { status: 201 });
     } else {
       // For SELL transactions, reduce quantity and calculate realized gain/loss
@@ -286,6 +314,33 @@ export async function POST(
         return internalServerError(
           'Transaction created but asset update failed',
         );
+      }
+
+      // Create cash transaction for SELL (add to cash)
+      try {
+        // Get asset info for portfolio and symbol
+        const { data: assetInfo } = await supabase
+          .from('assets')
+          .select('portfolio_id, symbol, currency')
+          .eq('id', id)
+          .single();
+
+        if (assetInfo) {
+          const totalProceeds = validatedData.amount * validatedData.price;
+          await createCashTransactionForAsset(
+            assetInfo.portfolio_id,
+            assetInfo.symbol,
+            transaction.id,
+            id,
+            'SELL',
+            totalProceeds,
+            validatedData.date || new Date().toISOString().split('T')[0],
+            assetInfo.currency || validatedData.currency || 'TRY'
+          );
+        }
+      } catch (cashError) {
+        // Log but don't fail - cash tracking is optional
+        console.error('Failed to create cash transaction for SELL:', cashError);
       }
 
       return NextResponse.json({ data: transaction }, { status: 201 });

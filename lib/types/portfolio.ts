@@ -136,6 +136,10 @@ export const UpdatePortfolioSchema = z.object({
   name: z.string().min(1).max(255).optional(),
   base_currency: z.string().optional(),
   benchmark_symbol: z.string().optional().nullable(),
+  // New fields for architecture redesign
+  portfolio_type_id: z.string().uuid().optional().nullable(),
+  description: z.string().optional().nullable(),
+  target_value: z.number().positive().optional().nullable(),
 });
 
 export const UpdateAssetSchema = z.object({

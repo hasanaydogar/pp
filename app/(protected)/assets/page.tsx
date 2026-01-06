@@ -16,6 +16,7 @@ import { SUPPORTED_CURRENCIES } from '@/lib/types/currency';
 import Link from 'next/link';
 import clsx from 'clsx';
 import { MagnifyingGlassIcon, ArrowUpIcon, ArrowDownIcon } from '@heroicons/react/20/solid';
+import { createSlug, getAssetUrl } from '@/lib/utils/slug';
 
 type SortField = 'symbol' | 'type' | 'quantity' | 'price' | 'value';
 type SortDirection = 'asc' | 'desc';
@@ -321,11 +322,14 @@ export default function AssetsPage() {
             <TableBody>
               {filteredAndSortedAssets.map((asset) => {
                 const value = Number(asset.quantity) * Number(asset.average_buy_price);
+                const portfolioSlug = activePortfolio ? createSlug(activePortfolio.name) : '';
+                const assetUrl = portfolioSlug ? getAssetUrl(portfolioSlug, asset.symbol) : `/assets/${asset.id}`;
+                
                 return (
                   <TableRow key={asset.id}>
                     <TableCell>
                       <Link 
-                        href={`/assets/${asset.id}`} 
+                        href={assetUrl} 
                         className="text-indigo-600 hover:text-indigo-500 dark:text-indigo-400"
                       >
                         {asset.symbol}

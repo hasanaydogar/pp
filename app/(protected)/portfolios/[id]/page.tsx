@@ -13,6 +13,7 @@ import { ImportAssetsDialog } from '@/components/portfolios/import-assets-dialog
 import Link from 'next/link';
 import { PlusIcon, PencilIcon, TrashIcon, ArrowUpTrayIcon } from '@heroicons/react/20/solid';
 import clsx from 'clsx';
+import { createSlug, getAssetUrl } from '@/lib/utils/slug';
 
 interface Asset {
   id: string;
@@ -208,6 +209,8 @@ export default function PortfolioDetailPage({ params }: PortfolioDetailPageProps
                     ? asset.average_buy_price 
                     : parseFloat(String(asset.average_buy_price)) || 0;
                   const value = quantity * price;
+                  const portfolioSlug = createSlug(portfolio.name);
+                  const assetUrl = getAssetUrl(portfolioSlug, asset.symbol);
 
                   return (
                     <TableRow key={asset.id}>
@@ -244,7 +247,7 @@ export default function PortfolioDetailPage({ params }: PortfolioDetailPageProps
                         })}
                       </TableCell>
                       <TableCell className="text-right">
-                        <Link href={`/assets/${asset.id}`}>
+                        <Link href={assetUrl}>
                           <Button plain>View</Button>
                         </Link>
                       </TableCell>
