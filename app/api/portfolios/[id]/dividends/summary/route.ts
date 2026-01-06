@@ -47,7 +47,7 @@ export async function GET(
       .from('dividends')
       .select(`
         *,
-        asset:assets(symbol)
+        asset:assets!dividends_asset_id_fkey(symbol)
       `)
       .eq('portfolio_id', portfolioId)
       .gte('payment_date', yearStart)

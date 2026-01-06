@@ -171,3 +171,102 @@ export async function POST(request: Request, { params }: RouteParams) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+
+export async function DELETE(request: Request, { params }: RouteParams) {
+  try {
+    const { id: portfolioId, currency } = await params;
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Get transaction ID from query params
+    const url = new URL(request.url);
+    const transactionId = url.searchParams.get('transactionId');
+    
+    if (!transactionId) {
+      return NextResponse.json({ error: 'Transaction ID required' }, { status: 400 });
+    }
+
+    // Verify portfolio ownership
+    const { data: portfolio, error: portfolioError } = await supabase
+      .from('portfolios')
+      .select('id')
+      .eq('id', portfolioId)
+      .eq('user_id', user.id)
+      .single();
+
+    if (portfolioError || !portfolio) {
+      return NextResponse.json({ error: 'Portfolio not found' }, { status: 404 });
+    }
+
+    // Get cash position
+    const { data: cashPosition, error: cashError } = await supabase
+      .from('cash_positions')
+      .select('id, amount')
+      .eq('portfolio_id', portfolioId)
+      .eq('currency', currency.toUpperCase())
+      .single();
+
+    if (cashError || !cashPosition) {
+      return NextResponse.json({ error: 'Cash position not found' }, { status: 404 });
+    }
+
+    // Get the transaction to be deleted
+    const { data: transaction, error: txError } = await supabase
+      .from('cash_transactions')
+      .select('*')
+      .eq('id', transactionId)
+      .eq('cash_position_id', cashPosition.id)
+      .single();
+
+    if (txError || !transaction) {
+      return NextResponse.json({ error: 'Transaction not found' }, { status: 404 });
+    }
+
+    // Calculate the reversal amount
+    const sign = getCashTransactionSign(transaction.type);
+    const reversalAmount = transaction.amount * sign;
+    const newAmount = cashPosition.amount - reversalAmount;
+
+    // Delete the transaction
+    const { error: deleteError } = await supabase
+      .from('cash_transactions')
+      .delete()
+      .eq('id', transactionId);
+
+    if (deleteError) {
+      console.error('Error deleting cash transaction:', deleteError);
+      return NextResponse.json({ error: deleteError.message }, { status: 500 });
+    }
+
+    // Update cash position amount
+    const { error: updateError } = await supabase
+      .from('cash_positions')
+      .update({
+        amount: newAmount,
+        last_updated: new Date().toISOString(),
+      })
+      .eq('id', cashPosition.id);
+
+    if (updateError) {
+      console.error('Error updating cash position after delete:', updateError);
+      // Transaction already deleted - log the inconsistency
+      return NextResponse.json({ 
+        error: 'Transaction deleted but cash position update failed',
+        details: updateError.message 
+      }, { status: 500 });
+    }
+
+    return NextResponse.json({ 
+      success: true,
+      deleted_transaction_id: transactionId,
+      new_position_amount: newAmount,
+    });
+  } catch (error) {
+    console.error('Error in DELETE /api/portfolios/[id]/cash/[currency]/transactions:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}

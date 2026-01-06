@@ -122,4 +122,47 @@ export function calculateTaxAmount(grossAmount: number, taxRate: number = 0.10):
 /**
  * Default withholding tax rate for dividends in Turkey
  */
-export const DEFAULT_DIVIDEND_TAX_RATE = 0.10; // %10 stopaj
+export const DEFAULT_DIVIDEND_TAX_RATE = 0.15; // %15 stopaj
+
+// ============================================================================
+// UPCOMING DIVIDEND (Yahoo Finance Data)
+// ============================================================================
+
+export interface UpcomingDividend {
+  id?: string; // Database ID (for manual/forecast entries)
+  symbol: string;
+  assetId: string;
+  exDividendDate: string;
+  paymentDate: string | null;
+  dividendPerShare: number;
+  quantity: number;
+  expectedTotal: number; // quantity × dividendPerShare
+  currency: string;
+  daysUntil: number;
+  isForecast?: boolean; // True if this is a user-entered forecast
+  source?: string; // MANUAL, AUTO, MANUAL_FORECAST, YAHOO
+}
+
+export interface DividendCalendarItem {
+  date: string;
+  dividends: UpcomingDividend[];
+  totalExpected: number;
+}
+
+export interface DividendCalendarResponse {
+  upcoming: UpcomingDividend[];
+  byMonth: Record<string, DividendCalendarItem[]>;
+  totalExpected90Days: number;
+  totalExpectedYearly: number;
+}
+
+// ============================================================================
+// DIVIDEND SOURCE (for auto vs manual)
+// ============================================================================
+
+export type DividendSource = 'MANUAL' | 'AUTO';
+
+export interface DividendWithSource extends Dividend {
+  source: DividendSource;
+  yahoo_event_id?: string | null;
+}

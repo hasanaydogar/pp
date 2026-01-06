@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { CreateDividendSchema, calculateNetDividend } from '@/lib/types/dividend';
+import { CreateDividendSchema, calculateNetDividend, ReinvestStrategy } from '@/lib/types/dividend';
+import { createCashTransactionForDividend } from '@/lib/services/cash-service';
 
 // GET - List dividends for a portfolio
 export async function GET(
@@ -41,7 +42,7 @@ export async function GET(
       .from('dividends')
       .select(`
         *,
-        asset:assets(symbol, type)
+        asset:assets!dividends_asset_id_fkey(symbol, type)
       `, { count: 'exact' })
       .eq('portfolio_id', portfolioId)
       .order('payment_date', { ascending: false });
@@ -111,14 +112,19 @@ export async function POST(
     
     // Parse and validate body
     const body = await request.json();
+    console.log('[Dividend API] Received body:', JSON.stringify(body));
+    
     const validated = CreateDividendSchema.safeParse(body);
     
     if (!validated.success) {
+      console.error('[Dividend API] Validation failed:', validated.error.issues);
       return NextResponse.json(
         { error: 'Validation failed', details: validated.error.issues },
         { status: 400 }
       );
     }
+    
+    console.log('[Dividend API] Validated data:', JSON.stringify(validated.data));
     
     const { asset_id, gross_amount, tax_amount, ...rest } = validated.data;
     
@@ -150,13 +156,42 @@ export async function POST(
       })
       .select(`
         *,
-        asset:assets(symbol, type)
+        asset:assets!dividends_asset_id_fkey(symbol, type)
       `)
       .single();
     
     if (error) {
-      console.error('Error creating dividend:', error);
-      return NextResponse.json({ error: 'Failed to create dividend' }, { status: 500 });
+      console.error('[Dividend API] Supabase error:', error);
+      return NextResponse.json({ error: 'Failed to create dividend', details: error.message }, { status: 500 });
+    }
+    
+    console.log('[Dividend API] Created dividend:', data?.id);
+    
+    // If reinvest strategy is CASH, add to cash balance
+    const reinvestStrategy = rest.reinvest_strategy || ReinvestStrategy.CASH;
+    if (reinvestStrategy === ReinvestStrategy.CASH && netAmount > 0) {
+      // Get asset symbol for the cash transaction
+      const { data: assetInfo } = await supabase
+        .from('assets')
+        .select('symbol, currency')
+        .eq('id', asset_id)
+        .single();
+      
+      if (assetInfo) {
+        try {
+          await createCashTransactionForDividend(
+            portfolioId,
+            asset_id,
+            assetInfo.symbol,
+            netAmount,
+            rest.payment_date,
+            rest.currency || assetInfo.currency || 'TRY'
+          );
+        } catch (cashError) {
+          console.error('Failed to create cash transaction for dividend:', cashError);
+          // Don't fail the dividend creation, just log the error
+        }
+      }
     }
     
     return NextResponse.json({ data }, { status: 201 });

@@ -58,8 +58,16 @@ export default function ProjectionPage({ params }: ProjectionPageProps) {
   // Calculate current value using live prices
   const currentValue = useMemo(() => {
     const assetsValue = assets.reduce((sum: number, asset: any) => {
-      const livePrice = livePrices[asset.symbol];
-      const price = typeof livePrice === 'number' ? livePrice : Number(asset.average_buy_price); // Fallback to cost basis
+      const priceData = livePrices[asset.symbol];
+      // LivePrice is an object with { price, change, previousClose, ... }
+      let price: number;
+      if (priceData && typeof priceData === 'object' && 'price' in priceData) {
+        price = priceData.price;
+      } else if (typeof priceData === 'number') {
+        price = priceData;
+      } else {
+        price = Number(asset.average_buy_price); // Fallback to cost basis
+      }
       return sum + (Number(asset.quantity) * price);
     }, 0);
     return assetsValue + cashValue;

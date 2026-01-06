@@ -1,89 +1,127 @@
 'use client';
 
 import React from 'react';
-import { 
-  BanknotesIcon, 
-  CalendarDaysIcon,
-  ChartBarIcon,
-} from '@heroicons/react/20/solid';
 import { formatCurrency } from '@/lib/utils/currency';
+import { CashFlowSummary } from '@/lib/hooks/use-cash-flow';
+import {
+  BanknotesIcon,
+  ArrowTrendingUpIcon,
+  ArrowTrendingDownIcon,
+  CalendarIcon,
+} from '@heroicons/react/20/solid';
 import clsx from 'clsx';
 
 interface CashSummaryCardsProps {
-  cashBalance: number;
-  monthlyDividend: number;
-  yearlyDividend: number;
-  dividendYield?: number;
-  displayCurrency: string;
+  currentBalance: number;
+  summary: CashFlowSummary | null;
+  expectedDividend90Days: number;
+  currency: string;
+  periodLabel?: string;
 }
 
 interface SummaryCardProps {
   title: string;
-  value: React.ReactNode;
-  subtitle?: React.ReactNode;
-  icon: React.ComponentType<{ className?: string }>;
-  iconColor: string;
+  value: number;
+  currency: string;
+  subtitle?: string;
+  icon: React.ReactNode;
+  trend?: 'positive' | 'negative' | 'neutral';
 }
 
-function SummaryCard({ title, value, subtitle, icon: Icon, iconColor }: SummaryCardProps) {
+function SummaryCard({
+  title,
+  value,
+  currency,
+  subtitle,
+  icon,
+  trend = 'neutral',
+}: SummaryCardProps) {
   return (
-    <div className="overflow-hidden rounded-lg bg-white px-4 py-5 shadow dark:bg-zinc-900 sm:p-6">
-      <div className="flex items-center">
-        <div className={clsx('flex-shrink-0 rounded-md p-3', iconColor)}>
-          <Icon className="h-6 w-6 text-white" />
-        </div>
-        <div className="ml-5 w-0 flex-1">
-          <dt className="truncate text-sm font-medium text-zinc-500 dark:text-zinc-400">
-            {title}
-          </dt>
-          <dd className="mt-1 text-2xl font-semibold tracking-tight text-zinc-900 dark:text-white">
-            {value}
-          </dd>
-          {subtitle && (
-            <dd className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-              {subtitle}
-            </dd>
-          )}
+    <div className="bg-white dark:bg-zinc-800 rounded-xl p-4 shadow-sm border border-zinc-200 dark:border-zinc-700">
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-sm text-zinc-500 dark:text-zinc-400">{title}</span>
+        <div className={clsx(
+          'p-1.5 rounded-lg',
+          trend === 'positive' && 'bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400',
+          trend === 'negative' && 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400',
+          trend === 'neutral' && 'bg-zinc-100 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-400'
+        )}>
+          {icon}
         </div>
       </div>
+      
+      <div className={clsx(
+        'text-xl font-semibold',
+        trend === 'positive' && 'text-green-600 dark:text-green-400',
+        trend === 'negative' && 'text-red-600 dark:text-red-400',
+        trend === 'neutral' && 'text-zinc-900 dark:text-white'
+      )}>
+        {trend === 'positive' && value > 0 && '+'}
+        {formatCurrency(value, currency)}
+      </div>
+      
+      {subtitle && (
+        <div className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+          {subtitle}
+        </div>
+      )}
     </div>
   );
 }
 
 export function CashSummaryCards({
-  cashBalance,
-  monthlyDividend,
-  yearlyDividend,
-  dividendYield = 0,
-  displayCurrency,
+  currentBalance,
+  summary,
+  expectedDividend90Days,
+  currency,
+  periodLabel = 'Dönem',
 }: CashSummaryCardsProps) {
+  const netChange = summary?.netChange || 0;
+  const totalDividends = summary?.totalDividends || 0;
+  const totalPurchases = summary?.totalPurchases || 0;
+
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-      {/* Cash Balance */}
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* Current Balance */}
       <SummaryCard
-        title="Nakit Bakiyesi"
-        value={formatCurrency(cashBalance, displayCurrency)}
-        subtitle="Kullanılabilir nakit"
-        icon={BanknotesIcon}
-        iconColor="bg-green-500"
+        title="Mevcut Nakit"
+        value={currentBalance}
+        currency={currency}
+        icon={<BanknotesIcon className="h-4 w-4" />}
+        trend="neutral"
       />
-      
-      {/* Monthly Dividend */}
+
+      {/* Net Change */}
       <SummaryCard
-        title="Aylık Temettü"
-        value={formatCurrency(monthlyDividend, displayCurrency)}
-        subtitle="Bu ay alınan"
-        icon={CalendarDaysIcon}
-        iconColor="bg-blue-500"
+        title={`${periodLabel} Değişimi`}
+        value={netChange}
+        currency={currency}
+        subtitle={summary ? `${formatCurrency(summary.startBalance, currency)} → ${formatCurrency(summary.endBalance, currency)}` : undefined}
+        icon={netChange >= 0 
+          ? <ArrowTrendingUpIcon className="h-4 w-4" />
+          : <ArrowTrendingDownIcon className="h-4 w-4" />
+        }
+        trend={netChange > 0 ? 'positive' : netChange < 0 ? 'negative' : 'neutral'}
       />
-      
-      {/* Yearly Dividend */}
+
+      {/* Total Dividends */}
       <SummaryCard
-        title="Yıllık Temettü"
-        value={formatCurrency(yearlyDividend, displayCurrency)}
-        subtitle={dividendYield > 0 ? `Verim: %${dividendYield.toFixed(2)}` : 'Bu yıl toplam'}
-        icon={ChartBarIcon}
-        iconColor="bg-purple-500"
+        title={`${periodLabel} Temettü`}
+        value={totalDividends}
+        currency={currency}
+        subtitle={totalPurchases > 0 ? `Alım: ${formatCurrency(totalPurchases, currency)}` : undefined}
+        icon={<ArrowTrendingUpIcon className="h-4 w-4" />}
+        trend={totalDividends > 0 ? 'positive' : 'neutral'}
+      />
+
+      {/* Expected Dividends */}
+      <SummaryCard
+        title="Beklenen Temettü"
+        value={expectedDividend90Days}
+        currency={currency}
+        subtitle="90 gün içinde"
+        icon={<CalendarIcon className="h-4 w-4" />}
+        trend={expectedDividend90Days > 0 ? 'positive' : 'neutral'}
       />
     </div>
   );

@@ -18,6 +18,7 @@ import { SortableAssetsTable } from '@/components/portfolio/sortable-assets-tabl
 import { PerformanceChart } from '@/components/portfolio/performance-chart';
 import { PerformanceSummary } from '@/components/portfolio/performance-summary';
 import { PeriodSelector } from '@/components/portfolio/period-selector';
+import { BackfillButton } from '@/components/portfolio/backfill-button';
 import { SortColumn, SortDirection } from '@/lib/types/asset-metrics';
 import { Period } from '@/lib/types/snapshot';
 import { PortfolioPolicy, PolicyViolation, DEFAULT_POLICY } from '@/lib/types/policy';
@@ -348,11 +349,14 @@ export default function PortfolioDashboardPage({ params }: PortfolioDashboardPag
           <h3 className="text-sm font-medium text-zinc-900 dark:text-white">
             Portföy Performansı
           </h3>
-          <PeriodSelector
-            value={performancePeriod}
-            onChange={setPerformancePeriod}
-            size="sm"
-          />
+          <div className="flex items-center gap-2">
+            <BackfillButton portfolioId={portfolio.id} />
+            <PeriodSelector
+              value={performancePeriod}
+              onChange={setPerformancePeriod}
+              size="sm"
+            />
+          </div>
         </div>
         {performanceLoading ? (
           <div className="flex items-center justify-center h-[300px]">

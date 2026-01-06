@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   CashTransaction, 
   CashTransactionType, 
@@ -12,6 +12,7 @@ import {
   ArrowUpIcon, 
   ArrowDownIcon,
   CalendarIcon,
+  TrashIcon,
 } from '@heroicons/react/20/solid';
 import clsx from 'clsx';
 
@@ -19,6 +20,7 @@ interface CashTransactionsListProps {
   transactions: CashTransaction[];
   currency: string;
   loading?: boolean;
+  onDelete?: (transactionId: string) => Promise<void>;
 }
 
 function getTransactionIcon(type: CashTransactionType) {
@@ -33,7 +35,22 @@ export function CashTransactionsList({
   transactions,
   currency,
   loading = false,
+  onDelete,
 }: CashTransactionsListProps) {
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const handleDelete = async (transactionId: string) => {
+    if (!onDelete) return;
+    if (!confirm('Bu işlemi silmek istediğinize emin misiniz?')) return;
+    
+    setDeletingId(transactionId);
+    try {
+      await onDelete(transactionId);
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
   if (loading) {
     return (
       <div className="space-y-3">
@@ -104,6 +121,21 @@ export function CashTransactionsList({
               {isPositive ? '+' : '-'}
               {formatCurrency(Math.abs(transaction.amount), currency)}
             </div>
+
+            {/* Delete button */}
+            {onDelete && (
+              <button
+                onClick={() => handleDelete(transaction.id)}
+                disabled={deletingId === transaction.id}
+                className={clsx(
+                  'ml-2 p-1.5 rounded-lg text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors',
+                  deletingId === transaction.id && 'opacity-50 cursor-not-allowed'
+                )}
+                title="Sil"
+              >
+                <TrashIcon className="h-4 w-4" />
+              </button>
+            )}
           </div>
         );
       })}
