@@ -8,12 +8,15 @@ import clsx from 'clsx';
 
 interface PendingDividend {
   id: string;
+  assetId: string;
   symbol: string;
   grossAmount: number;
+  taxAmount: number;
   netAmount: number;
   currency: string;
   paymentDate: string;
   daysOverdue: number;
+  notes?: string;
 }
 
 interface PendingDividendsBannerProps {

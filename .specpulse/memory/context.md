@@ -5,7 +5,13 @@
 - **SpecPulse Version**: 2.7.1
 - **AI Assistant**: Not configured
 
-## Active Feature: 016-cash-dividend-bugfix-refactoring
+## Active Feature: 017-portfolio-policy-editor
+- Feature ID: 017
+- Branch: 017-portfolio-policy-editor
+- Started: 2026-01-06
+- Description: Portföy Amacı sayfasındaki politikaları düzenlenebilir hale getirme
+
+## Previous Feature: 016-cash-dividend-bugfix-refactoring
 - Feature ID: 016
 - Branch: 016-cash-dividend-bugfix-refactoring
 - Started: 2026-01-05

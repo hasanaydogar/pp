@@ -373,7 +373,7 @@ export default function CashPage({ params }: CashPageProps) {
               <BanknotesIcon className="-ml-0.5 mr-1.5 h-5 w-5" />
               Temettü Kaydet
             </Button>
-            <Button onClick={() => setShowForecastDialog(true)} color="blue" outline>
+            <Button onClick={() => setShowForecastDialog(true)} outline>
               <CalendarDaysIcon className="-ml-0.5 mr-1.5 h-5 w-5" />
               Beklenti Ekle
             </Button>

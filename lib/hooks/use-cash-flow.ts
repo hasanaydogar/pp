@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Period } from '@/lib/types/snapshot';
+import { Period } from '@/lib/utils/period';
 
 // ============================================================================
 // TYPES
