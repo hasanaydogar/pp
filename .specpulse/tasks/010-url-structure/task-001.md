@@ -3,15 +3,16 @@
 <!-- FEATURE_DIR: 010-url-structure -->
 <!-- FEATURE_ID: 010 -->
 <!-- TASK_LIST_ID: 001 -->
-<!-- STATUS: pending -->
+<!-- STATUS: completed -->
 <!-- CREATED: 2026-01-03 -->
 <!-- LAST_UPDATED: 2026-01-03 -->
 
 ## Progress Overview
-- **Total Tasks**: 10
-- **Completed Tasks**: 10 (100%)
+- **Total Tasks**: 17
+- **Completed Tasks**: 17 (100%)
 - **In Progress Tasks**: 0
 - **Blocked Tasks**: 0
+- **Pending Tasks**: 0
 
 ---
 
@@ -20,7 +21,7 @@
 ### Phase 1: Utilities [Priority: HIGH]
 
 #### T001: Create Slug Utility
-- **Status**: [ ] Pending
+- **Status**: [x] Completed
 - **Type**: development
 - **Priority**: HIGH
 - **Estimate**: 15 min
@@ -83,7 +84,7 @@ export function getAssetUrl(portfolioSlug: string, symbol: string): string {
 ### Phase 2: API Endpoints [Priority: HIGH]
 
 #### T002: Portfolio by Slug API
-- **Status**: [ ] Pending
+- **Status**: [x] Completed
 - **Type**: development
 - **Priority**: HIGH
 - **Estimate**: 20 min
@@ -111,7 +112,7 @@ Slug ile portfolio lookup yapan API endpoint oluştur.
 ---
 
 #### T003: Asset by Symbol API
-- **Status**: [ ] Pending
+- **Status**: [x] Completed
 - **Type**: development
 - **Priority**: HIGH
 - **Estimate**: 20 min
@@ -141,7 +142,7 @@ Portfolio slug + symbol ile asset lookup yapan API endpoint.
 ### Phase 3: Route Pages [Priority: HIGH]
 
 #### T004: Portfolio Dashboard Page
-- **Status**: [ ] Pending
+- **Status**: [x] Completed
 - **Type**: development
 - **Priority**: HIGH
 - **Estimate**: 30 min
@@ -167,7 +168,7 @@ Portfolio slug + symbol ile asset lookup yapan API endpoint.
 ---
 
 #### T005: Asset Detail Page
-- **Status**: [ ] Pending
+- **Status**: [x] Completed
 - **Type**: development
 - **Priority**: HIGH
 - **Estimate**: 30 min
@@ -194,7 +195,7 @@ Portfolio slug + symbol ile asset lookup yapan API endpoint.
 ---
 
 #### T006: Asset Edit Page
-- **Status**: [ ] Pending
+- **Status**: [x] Completed
 - **Type**: development
 - **Priority**: MEDIUM
 - **Estimate**: 15 min
@@ -214,7 +215,7 @@ Portfolio slug + symbol ile asset lookup yapan API endpoint.
 ---
 
 #### T007: Transaction Pages
-- **Status**: [ ] Pending
+- **Status**: [x] Completed
 - **Type**: development
 - **Priority**: MEDIUM
 - **Estimate**: 20 min
@@ -237,7 +238,7 @@ Transaction new ve edit sayfaları.
 ### Phase 4: Navigation [Priority: HIGH]
 
 #### T008: Sidebar Navigation Update
-- **Status**: [ ] Pending
+- **Status**: [x] Completed
 - **Type**: development
 - **Priority**: HIGH
 - **Estimate**: 20 min
@@ -282,7 +283,7 @@ onClick={() => {
 ### Phase 5: Link Updates [Priority: MEDIUM]
 
 #### T009: Update Asset Links
-- **Status**: [ ] Pending
+- **Status**: [x] Completed
 - **Type**: development
 - **Priority**: MEDIUM
 - **Estimate**: 25 min
@@ -316,7 +317,7 @@ Tüm asset linklerini yeni URL formatına güncelle.
 ### Phase 6: Final [Priority: LOW]
 
 #### T010: Testing & Verification
-- **Status**: [ ] Pending
+- **Status**: [x] Completed
 - **Type**: testing
 - **Priority**: LOW
 - **Estimate**: 15 min
@@ -341,22 +342,380 @@ Tüm URL'leri test et ve kırık link olmadığını doğrula.
 
 ---
 
+### Phase 7: Custom Slug Support [Priority: HIGH]
+
+#### T011: Database Migration for Slug Column
+- **Status**: [x] Completed
+- **Type**: database
+- **Priority**: HIGH
+- **Estimate**: 15 min
+- **Dependencies**: None
+- **Parallel**: [P] Yes
+
+**Description**:
+portfolios tablosuna slug kolonu ekle ve mevcut veriler için migration yap.
+
+**Files to Create**:
+- `supabase/migrations/20260113_add_slug_column.sql`
+
+**Implementation**:
+```sql
+-- portfolios tablosuna slug kolonu ekle
+ALTER TABLE portfolios ADD COLUMN IF NOT EXISTS slug TEXT;
+
+-- Unique constraint: user_id + slug kombinasyonu unique olmalı
+CREATE UNIQUE INDEX IF NOT EXISTS portfolios_user_slug_unique
+ON portfolios(user_id, slug);
+
+-- Mevcut portfolyolar için Turkish-aware slug oluştur
+-- Bu SQL'de Türkçe karakter dönüşümü yapılmalı
+UPDATE portfolios
+SET slug = lower(
+  regexp_replace(
+    regexp_replace(
+      regexp_replace(
+        regexp_replace(
+          regexp_replace(
+            regexp_replace(name, 'ş', 's', 'gi'),
+          'ğ', 'g', 'gi'),
+        'ü', 'u', 'gi'),
+      'ö', 'o', 'gi'),
+    'ç', 'c', 'gi'),
+  'ı', 'i', 'gi')
+)
+WHERE slug IS NULL;
+
+-- Özel karakterleri tire ile değiştir
+UPDATE portfolios
+SET slug = regexp_replace(slug, '[^a-z0-9]+', '-', 'g')
+WHERE slug IS NOT NULL;
+
+-- Baştaki ve sondaki tireleri kaldır
+UPDATE portfolios
+SET slug = regexp_replace(regexp_replace(slug, '^-+', ''), '-+$', '')
+WHERE slug IS NOT NULL;
+```
+
+**Acceptance Criteria**:
+- [ ] `slug` kolonu eklendi
+- [ ] Unique index oluşturuldu
+- [ ] Mevcut portfolyolar için slug generate edildi
+
+---
+
+#### T012: Slug Check API Endpoint
+- **Status**: [x] Completed
+- **Type**: development
+- **Priority**: HIGH
+- **Estimate**: 15 min
+- **Dependencies**: T011
+- **Parallel**: [P] Yes
+
+**Description**:
+Slug benzersizlik kontrolü için API endpoint.
+
+**Files to Create**:
+- `app/api/portfolios/check-slug/route.ts`
+
+**Implementation**:
+```typescript
+// GET /api/portfolios/check-slug?slug=my-portfolio&exclude=portfolio-id
+// Response: { available: boolean, suggestion?: string }
+
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const slug = searchParams.get('slug');
+  const excludeId = searchParams.get('exclude'); // Edit modunda mevcut portfolio'yu hariç tut
+
+  const user = await getCurrentUser();
+  if (!user) return unauthorized();
+
+  // Check if slug exists for this user
+  const existing = await supabase
+    .from('portfolios')
+    .select('id')
+    .eq('user_id', user.id)
+    .eq('slug', slug)
+    .neq('id', excludeId || '')
+    .single();
+
+  return NextResponse.json({
+    available: !existing.data,
+    suggestion: existing.data ? `${slug}-${Date.now().toString(36).slice(-4)}` : undefined
+  });
+}
+```
+
+**Acceptance Criteria**:
+- [ ] `GET /api/portfolios/check-slug?slug=test` → `{ available: true }`
+- [ ] Mevcut slug için → `{ available: false, suggestion: "test-abc1" }`
+
+---
+
+#### T013: Update Portfolio Types
+- **Status**: [x] Completed
+- **Type**: development
+- **Priority**: HIGH
+- **Estimate**: 10 min
+- **Dependencies**: T011
+- **Parallel**: [P] Yes
+
+**Description**:
+Portfolio tiplerini slug alanı ile güncelle.
+
+**Files to Modify**:
+- `lib/types/portfolio.ts`
+
+**Changes**:
+```typescript
+// Portfolio interface'e ekle:
+export interface Portfolio {
+  id: string;
+  name: string;
+  slug: string;  // YENİ - veritabanından geliyor
+  currency: string;
+  description?: string;
+  // ...
+}
+
+// CreatePortfolioInput'a ekle:
+export interface CreatePortfolioInput {
+  name: string;
+  slug?: string;  // YENİ - opsiyonel, verilmezse otomatik türetilir
+  currency: string;
+  description?: string;
+}
+
+// UpdatePortfolioInput'a ekle:
+export interface UpdatePortfolioInput {
+  name?: string;
+  slug?: string;  // YENİ - düzenlenebilir
+  currency?: string;
+  description?: string;
+}
+```
+
+**Acceptance Criteria**:
+- [ ] Portfolio tipinde `slug` alanı var
+- [ ] Create/Update input'larında slug opsiyonel
+
+---
+
+#### T014: Update Portfolio Create API
+- **Status**: [x] Completed
+- **Type**: development
+- **Priority**: HIGH
+- **Estimate**: 15 min
+- **Dependencies**: T012, T013
+- **Parallel**: [P] No
+
+**Description**:
+Portfolio oluşturma API'sini slug desteği ile güncelle.
+
+**Files to Modify**:
+- `app/api/portfolios/route.ts`
+
+**Changes**:
+```typescript
+export async function POST(request: Request) {
+  const body = await request.json();
+  const { name, slug: customSlug, currency, description } = body;
+
+  // Slug: custom verilmişse kullan, yoksa isimden türet
+  let slug = customSlug || createSlug(name);
+
+  // Benzersizlik kontrolü
+  const existing = await supabase
+    .from('portfolios')
+    .select('id')
+    .eq('user_id', user.id)
+    .eq('slug', slug)
+    .single();
+
+  if (existing.data) {
+    // Otomatik suffix ekle
+    slug = `${slug}-${Date.now().toString(36).slice(-4)}`;
+  }
+
+  // Portfolio oluştur
+  const { data, error } = await supabase
+    .from('portfolios')
+    .insert({ name, slug, currency, description, user_id: user.id })
+    .select()
+    .single();
+
+  return NextResponse.json(data);
+}
+```
+
+**Acceptance Criteria**:
+- [ ] Custom slug ile portfolio oluşturulabiliyor
+- [ ] Slug verilmezse otomatik türetiliyor
+- [ ] Çakışma durumunda suffix ekleniyor
+
+---
+
+#### T015: Update Portfolio Update API
+- **Status**: [x] Completed
+- **Type**: development
+- **Priority**: HIGH
+- **Estimate**: 15 min
+- **Dependencies**: T014
+- **Parallel**: [P] No
+
+**Description**:
+Portfolio güncelleme API'sini slug düzenleme desteği ile güncelle.
+
+**Files to Modify**:
+- `app/api/portfolios/[id]/route.ts`
+
+**Changes**:
+```typescript
+export async function PUT(request: Request, { params }) {
+  const { id } = await params;
+  const body = await request.json();
+  const { name, slug, currency, description } = body;
+
+  // Slug değiştiyse benzersizlik kontrolü
+  if (slug) {
+    const existing = await supabase
+      .from('portfolios')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('slug', slug)
+      .neq('id', id)  // Kendisi hariç
+      .single();
+
+    if (existing.data) {
+      return NextResponse.json(
+        { error: 'Bu slug zaten kullanımda' },
+        { status: 409 }
+      );
+    }
+  }
+
+  // Güncelle
+  const { data, error } = await supabase
+    .from('portfolios')
+    .update({ name, slug, currency, description })
+    .eq('id', id)
+    .select()
+    .single();
+
+  return NextResponse.json(data);
+}
+```
+
+**Acceptance Criteria**:
+- [ ] Slug düzenlenebiliyor
+- [ ] Çakışma durumunda hata dönüyor
+- [ ] Eski slug kullanılabilir kalıyor (başka portfolyoya)
+
+---
+
+#### T016: Add Slug Field to Portfolio Forms
+- **Status**: [x] Completed
+- **Type**: development
+- **Priority**: HIGH
+- **Estimate**: 25 min
+- **Dependencies**: T014, T015
+- **Parallel**: [P] No
+
+**Description**:
+Portfolio oluşturma ve düzenleme formlarına slug alanı ekle.
+
+**Files to Modify**:
+- `components/portfolios/portfolio-form.tsx`
+- `app/(protected)/portfolios/new/page.tsx`
+- `app/(protected)/portfolios/[id]/edit/page.tsx`
+
+**UI Design**:
+```
+Portfolio Adı: [Borsa İstanbul          ]
+URL Kısaltması: [bist                    ] (opsiyonel)
+                ↳ Boş bırakılırsa: borsa-istanbul
+
+Önizleme URL: portfoy.app/p/bist
+```
+
+**Implementation**:
+```typescript
+// portfolio-form.tsx'e slug alanı ekle
+<div className="space-y-2">
+  <Label htmlFor="slug">URL Kısaltması (opsiyonel)</Label>
+  <div className="flex items-center gap-2">
+    <span className="text-zinc-500">/p/</span>
+    <Input
+      id="slug"
+      value={slug}
+      onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
+      placeholder={createSlug(name) || 'my-portfolio'}
+    />
+  </div>
+  <p className="text-xs text-zinc-500">
+    Boş bırakılırsa portfolio adından otomatik oluşturulur
+  </p>
+</div>
+
+// Slug preview
+<div className="rounded bg-zinc-100 p-2 text-sm">
+  <span className="text-zinc-500">Önizleme: </span>
+  <code>/p/{slug || createSlug(name) || 'slug'}</code>
+</div>
+```
+
+**Acceptance Criteria**:
+- [ ] Slug alanı formda görünüyor
+- [ ] Sadece geçerli karakterler kabul ediliyor (a-z, 0-9, -)
+- [ ] Önizleme URL gösteriliyor
+- [ ] Boş bırakılırsa placeholder doğru
+
+---
+
+#### T017: Final Testing for Custom Slug
+- **Status**: [x] Completed
+- **Type**: testing
+- **Priority**: MEDIUM
+- **Estimate**: 15 min
+- **Dependencies**: T016
+- **Parallel**: [P] No
+
+**Description**:
+Custom slug özelliğini end-to-end test et.
+
+**Test Scenarios**:
+1. Yeni portfolio - custom slug ile oluştur → URL doğru
+2. Yeni portfolio - slug boş bırak → Otomatik slug
+3. Portfolio düzenle - slug değiştir → Yeni URL çalışır
+4. Aynı slug ile ikinci portfolio → Hata mesajı
+5. TypeScript check → Hata yok
+6. Build → Başarılı
+
+**Acceptance Criteria**:
+- [ ] Tüm senaryolar başarılı
+- [ ] `npx tsc --noEmit` hata yok
+- [ ] `npm run build` başarılı
+
+---
+
 ## Dependencies Graph
 
 ```
-T001 (Slug Utility)
-  ↓
-T002 (Portfolio API) ──────┐
-  ↓                        │
-T003 (Asset API)           │
-  ↓                        ↓
-T004 (Dashboard Page) ← T005 (Asset Page)
-  ↓                        ↓
-T008 (Sidebar)         T006 (Edit Page)
-  ↓                        ↓
-T009 (Link Updates)    T007 (Transaction Pages)
-  ↓
-T010 (Testing)
+T001 (Slug Utility) ────────────────────┐
+  ↓                                     ↓
+T002 (Portfolio API) ──────┐      T011 (DB Migration)
+  ↓                        │         ↓
+T003 (Asset API)           │      T012 (Check Slug API)
+  ↓                        ↓         ↓
+T004 (Dashboard Page) ← T005      T013 (Update Types)
+  ↓                        ↓         ↓
+T008 (Sidebar)         T006      T014 (Create API + slug)
+  ↓                        ↓         ↓
+T009 (Link Updates)    T007      T015 (Update API + slug)
+  ↓                                  ↓
+T010 (Testing)               T016 (Form slug field)
+                                     ↓
+                             T017 (Custom Slug Testing)
 ```
 
 ## Parallel Execution
@@ -373,15 +732,16 @@ T010 (Testing)
 
 ## Estimated Total Time
 
-| Phase | Tasks | Time |
-|-------|-------|------|
-| Phase 1 | T001 | 15 min |
-| Phase 2 | T002, T003 | 40 min |
-| Phase 3 | T004-T007 | 95 min |
-| Phase 4 | T008 | 20 min |
-| Phase 5 | T009 | 25 min |
-| Phase 6 | T010 | 15 min |
-| **Total** | **10 tasks** | **~3.5 hours** |
+| Phase | Tasks | Time | Status |
+|-------|-------|------|--------|
+| Phase 1 | T001 | 15 min | ✅ Done |
+| Phase 2 | T002, T003 | 40 min | ✅ Done |
+| Phase 3 | T004-T007 | 95 min | ✅ Done |
+| Phase 4 | T008 | 20 min | ✅ Done |
+| Phase 5 | T009 | 25 min | ✅ Done |
+| Phase 6 | T010 | 15 min | ✅ Done |
+| Phase 7 | T011-T017 | 110 min | ✅ Done |
+| **Total** | **17 tasks** | **~5.5 hours** | **100% Complete** |
 
 ---
 

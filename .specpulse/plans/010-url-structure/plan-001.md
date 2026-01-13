@@ -202,9 +202,57 @@ function getAssetUrl(portfolioSlug: string, symbol: string) {
 
 ---
 
-### Phase 6: Backwards Compatibility [Priority: LOW]
+### Phase 6: Custom Slug Support [Priority: HIGH]
+**Timeline**: 45 min
+**Dependencies**: Phase 1
+
+#### Tasks
+1. [ ] Database migration: Add `slug` column to `portfolios` table
+2. [ ] Create unique index on `(user_id, slug)`
+3. [ ] Migrate existing portfolios with auto-generated slugs
+4. [ ] Update Portfolio create form with slug field (optional input)
+5. [ ] Update Portfolio edit form with editable slug field
+6. [ ] Create slug validation API endpoint
+7. [ ] Add slug uniqueness check in create/update APIs
+
+#### Database Migration
+
+```sql
+-- portfolios tablosuna slug kolonu ekle (user bazında unique)
+ALTER TABLE portfolios ADD COLUMN slug TEXT;
+
+-- Unique constraint: user_id + slug kombinasyonu unique olmalı
+CREATE UNIQUE INDEX portfolios_user_slug_unique ON portfolios(user_id, slug);
+
+-- Mevcut portfolyolar için otomatik slug oluştur
+UPDATE portfolios SET slug = lower(replace(name, ' ', '-'));
+```
+
+#### Form Changes
+
+```typescript
+// Portfolio create form - slug opsiyonel
+interface CreatePortfolioForm {
+  name: string;
+  slug?: string;  // Kullanıcı girebilir, boşsa otomatik türetilir
+  currency: string;
+  description?: string;
+}
+
+// Portfolio edit form - slug düzenlenebilir
+interface EditPortfolioForm {
+  name: string;
+  slug: string;  // Değiştirilebilir
+  currency: string;
+  description?: string;
+}
+```
+
+---
+
+### Phase 7: Backwards Compatibility [Priority: LOW]
 **Timeline**: 15 min
-**Dependencies**: Phase 5
+**Dependencies**: Phase 6
 
 #### Tasks
 1. [ ] Keep old `/assets/[id]` routes functional (optional)
@@ -218,22 +266,28 @@ function getAssetUrl(portfolioSlug: string, symbol: string) {
 ### New Files
 | File | Status | Description |
 |------|--------|-------------|
-| `lib/utils/slug.ts` | ⬜ | Slug utility functions |
-| `app/api/portfolios/by-slug/[slug]/route.ts` | ⬜ | Portfolio by slug API |
-| `app/api/portfolios/by-slug/[slug]/assets/[symbol]/route.ts` | ⬜ | Asset by symbol API |
-| `app/(protected)/p/[slug]/page.tsx` | ⬜ | Portfolio dashboard |
-| `app/(protected)/p/[slug]/[symbol]/page.tsx` | ⬜ | Asset detail |
-| `app/(protected)/p/[slug]/[symbol]/edit/page.tsx` | ⬜ | Asset edit |
-| `app/(protected)/p/[slug]/[symbol]/transactions/new/page.tsx` | ⬜ | New transaction |
-| `app/(protected)/p/[slug]/[symbol]/transactions/[transactionId]/edit/page.tsx` | ⬜ | Edit transaction |
+| `lib/utils/slug.ts` | ✅ | Slug utility functions |
+| `app/api/portfolios/by-slug/[slug]/route.ts` | ✅ | Portfolio by slug API |
+| `app/api/portfolios/by-slug/[slug]/assets/[symbol]/route.ts` | ✅ | Asset by symbol API |
+| `app/(protected)/p/[slug]/page.tsx` | ✅ | Portfolio dashboard |
+| `app/(protected)/p/[slug]/[symbol]/page.tsx` | ✅ | Asset detail |
+| `app/(protected)/p/[slug]/[symbol]/edit/page.tsx` | ✅ | Asset edit |
+| `app/(protected)/p/[slug]/[symbol]/transactions/new/page.tsx` | ✅ | New transaction |
+| `app/(protected)/p/[slug]/[symbol]/transactions/[transactionId]/edit/page.tsx` | ✅ | Edit transaction |
+| `supabase/migrations/XXX_add_slug_column.sql` | ⬜ | Database migration for slug |
+| `app/api/portfolios/check-slug/route.ts` | ⬜ | Slug uniqueness check API |
 
 ### Modified Files
 | File | Status | Changes |
 |------|--------|---------|
-| `app/(protected)/application-layout-client.tsx` | ⬜ | Portfolio navigation |
-| `app/(protected)/dashboard/dashboard-content-client.tsx` | ⬜ | Asset links |
-| `app/(protected)/portfolios/[id]/page.tsx` | ⬜ | Asset links |
-| `lib/context/portfolio-context.tsx` | ⬜ | Add slug helper |
+| `app/(protected)/application-layout-client.tsx` | ✅ | Portfolio navigation |
+| `app/(protected)/dashboard/dashboard-content-client.tsx` | ✅ | Asset links |
+| `app/(protected)/portfolios/[id]/page.tsx` | ✅ | Asset links |
+| `lib/context/portfolio-context.tsx` | ✅ | Add slug helper |
+| `components/portfolios/portfolio-form.tsx` | ⬜ | Add slug field to create form |
+| `app/(protected)/portfolios/[id]/edit/page.tsx` | ⬜ | Add slug field to edit form |
+| `app/api/portfolios/route.ts` | ⬜ | Handle slug in create |
+| `app/api/portfolios/[id]/route.ts` | ⬜ | Handle slug in update |
 
 ---
 

@@ -121,6 +121,24 @@ export async function PUT(
     // Get Supabase client
     const supabase = await createClient();
 
+    // If slug is being updated, check for uniqueness
+    if (validatedData.slug) {
+      const { data: existingPortfolio } = await supabase
+        .from('portfolios')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('slug', validatedData.slug)
+        .neq('id', id)
+        .maybeSingle();
+
+      if (existingPortfolio) {
+        return NextResponse.json(
+          { error: 'Bu URL kısaltması zaten kullanımda' },
+          { status: 409 }
+        );
+      }
+    }
+
     // Update portfolio
     const { data, error } = await supabase
       .from('portfolios')

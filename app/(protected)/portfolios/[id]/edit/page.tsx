@@ -45,6 +45,7 @@ export default async function EditPortfolioPage({ params }: EditPortfolioPagePro
           portfolioId={id}
           initialData={{
             name: portfolio.name,
+            slug: portfolio.slug || '',
             base_currency: portfolio.base_currency,
             benchmark_symbol: portfolio.benchmark_symbol || undefined,
           }}

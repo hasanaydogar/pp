@@ -60,6 +60,7 @@ export const PortfolioSchema = z.object({
   id: z.string().uuid(),
   user_id: z.string().uuid(),
   name: z.string().min(1).max(255),
+  slug: z.string().min(1).max(100).optional().nullable(),
   base_currency: z.string().default(DEFAULT_CURRENCY),
   benchmark_symbol: z.string().nullable().optional(),
   created_at: z.string().datetime(),
@@ -101,6 +102,7 @@ export const TransactionSchema = z.object({
 
 export const CreatePortfolioSchema = z.object({
   name: z.string().min(1).max(255),
+  slug: z.string().min(1).max(100).regex(/^[a-z0-9-]+$/, 'Slug can only contain lowercase letters, numbers, and hyphens').optional(),
   base_currency: z.string().optional().default(DEFAULT_CURRENCY),
   benchmark_symbol: z.string().optional(),
 });
@@ -134,6 +136,7 @@ export const CreateTransactionSchema = z.object({
 
 export const UpdatePortfolioSchema = z.object({
   name: z.string().min(1).max(255).optional(),
+  slug: z.string().min(1).max(100).regex(/^[a-z0-9-]+$/, 'Slug can only contain lowercase letters, numbers, and hyphens').optional(),
   base_currency: z.string().optional(),
   benchmark_symbol: z.string().optional().nullable(),
   // New fields for architecture redesign

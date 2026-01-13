@@ -11,9 +11,11 @@ import { ApiError } from '@/lib/api/types';
 import { ErrorMessage } from '@/components/ui/error-message';
 import { Spinner } from '@/components/ui/spinner';
 import { SUPPORTED_CURRENCIES } from '@/lib/types/currency';
+import { createSlug } from '@/lib/utils/slug';
 
 interface PortfolioFormData {
   name: string;
+  slug: string;
   base_currency: string;
   benchmark_symbol?: string;
 }
@@ -29,6 +31,7 @@ export function PortfolioForm({ initialData, portfolioId, onSuccess }: Portfolio
   const { refetch, setActivePortfolioId } = usePortfolio();
   const [formData, setFormData] = useState<PortfolioFormData>({
     name: initialData?.name || '',
+    slug: initialData?.slug || '',
     base_currency: initialData?.base_currency || 'USD',
     benchmark_symbol: initialData?.benchmark_symbol || '',
   });
@@ -38,7 +41,15 @@ export function PortfolioForm({ initialData, portfolioId, onSuccess }: Portfolio
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+
+    // For slug field, only allow valid characters
+    if (name === 'slug') {
+      const sanitizedValue = value.toLowerCase().replace(/[^a-z0-9-]/g, '');
+      setFormData((prev) => ({ ...prev, [name]: sanitizedValue }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
+
     // Clear error for this field
     if (errors[name]) {
       setErrors((prev) => {
@@ -77,6 +88,7 @@ export function PortfolioForm({ initialData, portfolioId, onSuccess }: Portfolio
     try {
       const payload = {
         name: formData.name.trim(),
+        slug: formData.slug.trim() || undefined, // Only send if provided
         base_currency: formData.base_currency,
         benchmark_symbol: formData.benchmark_symbol?.trim() || null,
       };
@@ -148,6 +160,38 @@ export function PortfolioForm({ initialData, portfolioId, onSuccess }: Portfolio
         />
         {errors.name && (
           <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.name}</p>
+        )}
+      </div>
+
+      <div>
+        <label htmlFor="slug" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+          URL Kısaltması (Opsiyonel)
+        </label>
+        <div className="mt-1 flex items-center gap-2">
+          <span className="text-sm text-zinc-500">/p/</span>
+          <input
+            type="text"
+            id="slug"
+            name="slug"
+            value={formData.slug}
+            onChange={handleChange}
+            className="block w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-zinc-700 dark:bg-zinc-900"
+            placeholder={formData.name ? createSlug(formData.name) : 'my-portfolio'}
+          />
+        </div>
+        <Text className="mt-1 text-xs">
+          Boş bırakılırsa portfolio adından otomatik oluşturulur
+        </Text>
+        {formData.name && (
+          <div className="mt-2 rounded bg-zinc-100 p-2 text-sm dark:bg-zinc-800">
+            <span className="text-zinc-500">Önizleme: </span>
+            <code className="text-zinc-700 dark:text-zinc-300">
+              /p/{formData.slug || createSlug(formData.name) || 'slug'}
+            </code>
+          </div>
+        )}
+        {errors.slug && (
+          <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.slug}</p>
         )}
       </div>
 

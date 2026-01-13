@@ -45,8 +45,18 @@ URL yapısını daha okunabilir ve SEO-friendly hale getirme. Portfolio seçildi
 ```
 
 ### 2.3 Slug Oluşturma
+
+**Portfolio Slug:**
+- Kullanıcı tarafından manuel olarak girilebilir (custom slug)
+- Eğer kullanıcı girmezse, otomatik olarak isimden türetilir
+- Slug düzenlenebilir (portfolio edit sayfasında)
+- Benzersiz olmalı (user bazında)
+
 ```typescript
-// Portfolio slug: isimden türetilir, lowercase, dash-separated
+// Kullanıcı custom slug girebilir:
+"Borsa İstanbul" → kullanıcı girer: "bist" veya "borsam"
+
+// Otomatik türetme (fallback):
 "Borsa İstanbul" → "borsa-istanbul"
 "ABD Borsaları"  → "abd-borsalari"
 "My Portfolio"   → "my-portfolio"
@@ -57,17 +67,49 @@ URL yapısını daha okunabilir ve SEO-friendly hale getirme. Portfolio seçildi
 "AAPL"  → "aapl"
 ```
 
+**Slug Düzenleme:**
+- Portfolio oluşturma formunda slug alanı
+- Portfolio düzenleme sayfasında slug değiştirilebilir
+- Slug değiştiğinde eski URL'den yeniye redirect (opsiyonel)
+
 ---
 
 ## 3. Technical Specification
 
 ### 3.1 Database Değişikliği
 ```sql
--- portfolios tablosuna slug kolonu ekle
-ALTER TABLE portfolios ADD COLUMN slug TEXT UNIQUE;
+-- portfolios tablosuna slug kolonu ekle (user bazında unique)
+ALTER TABLE portfolios ADD COLUMN slug TEXT;
 
--- Mevcut portfolyolar için slug oluştur
+-- Unique constraint: user_id + slug kombinasyonu unique olmalı
+CREATE UNIQUE INDEX portfolios_user_slug_unique ON portfolios(user_id, slug);
+
+-- Mevcut portfolyolar için otomatik slug oluştur
 UPDATE portfolios SET slug = lower(replace(name, ' ', '-'));
+```
+
+### 3.1.1 Form Değişiklikleri
+
+**Portfolio Oluşturma Formu:**
+```typescript
+// Yeni alan: slug (opsiyonel)
+interface CreatePortfolioForm {
+  name: string;
+  slug?: string;  // Kullanıcı girebilir, boşsa otomatik türetilir
+  currency: string;
+  description?: string;
+}
+```
+
+**Portfolio Düzenleme Formu:**
+```typescript
+// Slug düzenlenebilir
+interface EditPortfolioForm {
+  name: string;
+  slug: string;  // Değiştirilebilir
+  currency: string;
+  description?: string;
+}
 ```
 
 ### 3.2 Route Yapısı
@@ -158,6 +200,9 @@ GET /api/portfolios/by-slug/[slug]/assets/[symbol]
 - [ ] URL'den portfolio ve asset anlaşılabilmeli
 - [ ] Sayfa yenilendiğinde doğru içerik yüklenmeli
 - [ ] Breadcrumb doğru görünmeli
+- [ ] Portfolio oluştururken custom slug girilebilmeli
+- [ ] Portfolio düzenlerken slug değiştirilebilmeli
+- [ ] Slug benzersizlik kontrolü yapılmalı (aynı kullanıcıda)
 
 ### 5.2 Non-Functional
 - [ ] Mevcut linkler çalışmaya devam etmeli (backward compatibility)
@@ -176,5 +221,8 @@ GET /api/portfolios/by-slug/[slug]/assets/[symbol]
 | Route pages | 45 min |
 | Sidebar update | 20 min |
 | Link updates | 30 min |
+| Portfolio create form (slug field) | 20 min |
+| Portfolio edit form (slug field) | 20 min |
+| Slug validation API | 15 min |
 | Testing | 20 min |
-| **Total** | **~3 hours** |
+| **Total** | **~4 hours** |

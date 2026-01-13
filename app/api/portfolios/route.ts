@@ -8,6 +8,7 @@ import {
 } from '@/lib/api/errors';
 import { validateWithZod, validateCurrencyOrThrow } from '@/lib/api/utils';
 import { CreatePortfolioSchema } from '@/lib/types/portfolio';
+import { createSlug } from '@/lib/utils/slug';
 import { z } from 'zod';
 
 /**
@@ -79,11 +80,29 @@ export async function POST(request: Request) {
     // Get Supabase client
     const supabase = await createClient();
 
+    // Generate slug: use provided slug or generate from name
+    let slug = validatedData.slug || createSlug(validatedData.name);
+
+    // Check if slug is already taken for this user
+    const { data: existingPortfolio } = await supabase
+      .from('portfolios')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('slug', slug)
+      .maybeSingle();
+
+    if (existingPortfolio) {
+      // Add unique suffix if slug is taken
+      const suffix = Date.now().toString(36).slice(-4);
+      slug = `${slug}-${suffix}`;
+    }
+
     // Create portfolio
     const { data, error } = await supabase
       .from('portfolios')
       .insert({
         ...validatedData,
+        slug,
         user_id: user.id,
       })
       .select()

@@ -1,7 +1,21 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(npx tsc:*)",
+      "Bash(./node_modules/.bin/tsc:*)",
+      "Bash(git fetch:*)",
+      "Bash(npm install:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nchore: mark 009-asset-price-chart feature as completed\n\n- All 10 tasks completed\n- TypeScript check passed\n- Build successful\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git push:*)",
+      "Bash(git checkout:*)",
+      "Bash(git pull:*)",
+      "Bash(git merge:*)",
+      "Bash(npm run lint:*)",
+      "Bash(npx next lint:*)",
+      "Bash(npx eslint:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nfeat: add custom slug support for portfolios\n\n- Add database migration for slug column with unique constraint per user\n- Create check-slug API endpoint for availability validation\n- Update portfolio types with slug field\n- Add slug generation in create/update portfolio APIs\n- Add slug field to portfolio forms with preview\n- Support Turkish character conversion in slug generation\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")"
     ]
   }
 }
