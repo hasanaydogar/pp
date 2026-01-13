@@ -6,6 +6,7 @@ import { useRouter, usePathname } from 'next/navigation';
 interface Portfolio {
   id: string;
   name: string;
+  slug?: string | null;
   base_currency: string;
   benchmark_symbol?: string | null;
   created_at: string;

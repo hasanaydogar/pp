@@ -21,10 +21,12 @@ import {
   DropdownLabel,
   DropdownMenu,
 } from '@/components/ui/dropdown';
+import { createSlug } from '@/lib/utils/slug';
 
 interface Portfolio {
   id: string;
   name: string;
+  slug?: string | null;
   base_currency: string;
   benchmark_symbol?: string | null;
   created_at: string;
@@ -150,7 +152,7 @@ export default function PortfoliosPage() {
                   <TableCell>
                     <div className="flex items-center gap-2">
                       <Link
-                        href={`/portfolios/${portfolio.id}`}
+                        href={`/p/${portfolio.slug || createSlug(portfolio.name)}`}
                         className={clsx(
                           'hover:text-indigo-600 dark:hover:text-indigo-400',
                           activePortfolioId === portfolio.id ? 'font-semibold' : ''
