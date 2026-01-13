@@ -35,8 +35,6 @@ export default function PortfoliosPage() {
   const { portfolios, refetch, activePortfolioId, setActivePortfolioId } = usePortfolio();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<ApiError | null>(null);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [editName, setEditName] = useState('');
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [deleteConfirmName, setDeleteConfirmName] = useState('');
 
@@ -45,34 +43,7 @@ export default function PortfoliosPage() {
   }, [refetch]);
 
   const handleEdit = (portfolio: Portfolio) => {
-    setEditingId(portfolio.id);
-    setEditName(portfolio.name);
-  };
-
-  const handleCancelEdit = () => {
-    setEditingId(null);
-    setEditName('');
-  };
-
-  const handleSaveEdit = async (portfolioId: string) => {
-    setLoading(true);
-    setError(null);
-    try {
-      await apiClient.put(`/portfolios/${portfolioId}`, {
-        name: editName.trim(),
-      });
-      await refetch();
-      setEditingId(null);
-      setEditName('');
-    } catch (err) {
-      if (err instanceof ApiError) {
-        setError(err);
-      } else {
-        setError(new ApiError('Failed to update portfolio', ApiErrorType.UNKNOWN, undefined, err));
-      }
-    } finally {
-      setLoading(false);
-    }
+    router.push(`/portfolios/${portfolio.id}/edit`);
   };
 
   const handleDeleteClick = (portfolio: Portfolio) => {
@@ -177,54 +148,22 @@ export default function PortfoliosPage() {
               {portfolios.map((portfolio) => (
                 <TableRow key={portfolio.id}>
                   <TableCell>
-                    {editingId === portfolio.id ? (
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="text"
-                          value={editName}
-                          onChange={(e) => setEditName(e.target.value)}
-                          className="rounded-lg border border-zinc-300 px-2 py-1 text-sm dark:border-zinc-700 dark:bg-zinc-800"
-                          autoFocus
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter') {
-                              handleSaveEdit(portfolio.id);
-                            } else if (e.key === 'Escape') {
-                              handleCancelEdit();
-                            }
-                          }}
-                        />
-                        <Button
-                          onClick={() => handleSaveEdit(portfolio.id)}
-                          disabled={loading || !editName.trim()}
-                        >
-                          Save
-                        </Button>
-                        <Button
-                          plain
-                          onClick={handleCancelEdit}
-                          disabled={loading}
-                        >
-                          Cancel
-                        </Button>
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-2">
-                        <Link 
-                          href={`/portfolios/${portfolio.id}`}
-                          className={clsx(
-                            'hover:text-indigo-600 dark:hover:text-indigo-400',
-                            activePortfolioId === portfolio.id ? 'font-semibold' : ''
-                          )}
-                        >
-                          {portfolio.name}
-                        </Link>
-                        {activePortfolioId === portfolio.id && (
-                          <span className="rounded-md bg-indigo-100 px-2 py-0.5 text-xs font-medium text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300">
-                            Active
-                          </span>
+                    <div className="flex items-center gap-2">
+                      <Link
+                        href={`/portfolios/${portfolio.id}`}
+                        className={clsx(
+                          'hover:text-indigo-600 dark:hover:text-indigo-400',
+                          activePortfolioId === portfolio.id ? 'font-semibold' : ''
                         )}
-                      </div>
-                    )}
+                      >
+                        {portfolio.name}
+                      </Link>
+                      {activePortfolioId === portfolio.id && (
+                        <span className="rounded-md bg-indigo-100 px-2 py-0.5 text-xs font-medium text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300">
+                          Active
+                        </span>
+                      )}
+                    </div>
                   </TableCell>
                   <TableCell>{portfolio.base_currency}</TableCell>
                   <TableCell>{portfolio.benchmark_symbol || '-'}</TableCell>
@@ -267,7 +206,7 @@ export default function PortfoliosPage() {
                           Cancel
                         </Button>
                       </div>
-                    ) : editingId === portfolio.id ? null : (
+                    ) : (
                       <div className="flex items-center justify-end gap-2">
                         <Button
                           plain
