@@ -16,6 +16,14 @@
  */
 export function createSlug(name: string): string {
   return name
+    // Turkish uppercase conversions FIRST (before toLowerCase)
+    .replace(/İ/g, 'i')
+    .replace(/I/g, 'i')
+    .replace(/Ş/g, 's')
+    .replace(/Ğ/g, 'g')
+    .replace(/Ü/g, 'u')
+    .replace(/Ö/g, 'o')
+    .replace(/Ç/g, 'c')
     .toLowerCase()
     // Turkish lowercase conversions
     .replace(/ş/g, 's')
@@ -24,13 +32,6 @@ export function createSlug(name: string): string {
     .replace(/ö/g, 'o')
     .replace(/ç/g, 'c')
     .replace(/ı/g, 'i')
-    // Turkish uppercase conversions
-    .replace(/İ/g, 'i')
-    .replace(/Ş/g, 's')
-    .replace(/Ğ/g, 'g')
-    .replace(/Ü/g, 'u')
-    .replace(/Ö/g, 'o')
-    .replace(/Ç/g, 'c')
     // Replace any non-alphanumeric characters with dashes
     .replace(/[^a-z0-9]+/g, '-')
     // Remove leading and trailing dashes
