@@ -23,7 +23,7 @@ interface PortfolioContextType {
 
 const PortfolioContext = createContext<PortfolioContextType | undefined>(undefined);
 
-export function PortfolioProvider({ children, initialPortfolios, initialActiveId }: { 
+export function PortfolioProvider({ children, initialPortfolios, initialActiveId }: {
   children: React.ReactNode;
   initialPortfolios: Portfolio[];
   initialActiveId?: string | null;

@@ -97,6 +97,7 @@ export function PortfolioForm({ initialData, portfolioId, onSuccess }: Portfolio
         // Update existing portfolio
         await apiClient.put(`/portfolios/${portfolioId}`, payload);
         await refetch(); // Refresh portfolio list
+        router.refresh(); // Refresh Server Components to get updated data
       } else {
         // Create new portfolio
         // API returns { data: { id, name, ... } }, client extracts data automatically

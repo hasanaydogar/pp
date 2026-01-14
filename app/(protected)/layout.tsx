@@ -3,6 +3,9 @@ import { cookies } from 'next/headers';
 import { getCurrentUser } from '@/lib/auth/actions';
 import { createClient } from '@/lib/supabase/server';
 import { getPortfolios } from '@/lib/api/server';
+
+// Force dynamic rendering to always fetch fresh data
+export const dynamic = 'force-dynamic';
 import { PortfolioProvider } from '@/lib/context/portfolio-context';
 import { CurrencyProvider } from '@/lib/context/currency-context';
 import { QueryProvider } from '@/lib/providers/query-provider';

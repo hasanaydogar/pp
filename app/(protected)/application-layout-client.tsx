@@ -203,7 +203,7 @@ export function ApplicationLayoutClient({
                     onClick={() => {
                       setActivePortfolioId(portfolio.id);
                       // Navigate to the portfolio dashboard with new URL structure
-                      const slug = createSlug(portfolio.name);
+                      const slug = portfolio.slug || createSlug(portfolio.name);
                       router.push(`/p/${slug}`);
                     }}
                   >
@@ -243,36 +243,36 @@ export function ApplicationLayoutClient({
               <SidebarLabel className="px-2 text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mb-2">
                 {activePortfolio?.name || 'Portföy'}
               </SidebarLabel>
-              <SidebarItem 
-                href={activePortfolio ? `/p/${createSlug(activePortfolio.name)}` : '/dashboard'} 
+              <SidebarItem
+                href={activePortfolio ? `/p/${activePortfolio.slug || createSlug(activePortfolio.name)}` : '/dashboard'}
                 current={pathname === '/dashboard' || (pathname.startsWith('/p/') && !pathname.includes('/analysis') && !pathname.includes('/goals') && !pathname.includes('/cash') && !pathname.includes('/projection'))}
               >
                 <WalletIcon />
                 <SidebarLabel>Varlıklar</SidebarLabel>
               </SidebarItem>
-              <SidebarItem 
-                href={activePortfolio ? `/p/${createSlug(activePortfolio.name)}/cash` : '/cash'} 
+              <SidebarItem
+                href={activePortfolio ? `/p/${activePortfolio.slug || createSlug(activePortfolio.name)}/cash` : '/cash'}
                 current={pathname.includes('/cash')}
               >
                 <BanknotesIcon />
                 <SidebarLabel>Nakit & Temettü</SidebarLabel>
               </SidebarItem>
-              <SidebarItem 
-                href={activePortfolio ? `/p/${createSlug(activePortfolio.name)}/projection` : '/projection'} 
+              <SidebarItem
+                href={activePortfolio ? `/p/${activePortfolio.slug || createSlug(activePortfolio.name)}/projection` : '/projection'}
                 current={pathname.includes('/projection')}
               >
                 <ArrowTrendingUpIcon />
                 <SidebarLabel>Projeksiyon</SidebarLabel>
               </SidebarItem>
-              <SidebarItem 
-                href={activePortfolio ? `/p/${createSlug(activePortfolio.name)}/analysis` : '/analysis'} 
+              <SidebarItem
+                href={activePortfolio ? `/p/${activePortfolio.slug || createSlug(activePortfolio.name)}/analysis` : '/analysis'}
                 current={pathname.includes('/analysis')}
               >
                 <SparklesIcon />
                 <SidebarLabel>AI Danışmanı</SidebarLabel>
               </SidebarItem>
-              <SidebarItem 
-                href={activePortfolio ? `/p/${createSlug(activePortfolio.name)}/goals` : '/goals'} 
+              <SidebarItem
+                href={activePortfolio ? `/p/${activePortfolio.slug || createSlug(activePortfolio.name)}/goals` : '/goals'}
                 current={pathname.includes('/goals')}
               >
                 <FlagIcon />
