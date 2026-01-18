@@ -45,7 +45,8 @@ export default function PortfoliosPage() {
   }, [refetch]);
 
   const handleEdit = (portfolio: Portfolio) => {
-    router.push(`/portfolios/${portfolio.id}/edit`);
+    const slug = portfolio.slug || createSlug(portfolio.name);
+    router.push(`/p/${slug}/settings`);
   };
 
   const handleDeleteClick = (portfolio: Portfolio) => {

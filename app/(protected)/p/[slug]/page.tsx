@@ -7,7 +7,7 @@ import { Text } from '@/components/ui/text';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { ErrorMessage } from '@/components/ui/error-message';
-import { PlusIcon, ArrowPathIcon } from '@heroicons/react/20/solid';
+import { PlusIcon, ArrowPathIcon, Cog6ToothIcon } from '@heroicons/react/20/solid';
 import { usePortfolio } from '@/lib/context/portfolio-context';
 import { useCurrency } from '@/lib/context/currency-context';
 import { useLivePrices } from '@/lib/hooks/use-live-prices';
@@ -294,9 +294,18 @@ export default function PortfolioDashboardPage({ params }: PortfolioDashboardPag
             <Text className="mt-1">{portfolio.description}</Text>
           )}
         </div>
-        
-        {/* Price refresh indicator */}
-        <div className="flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400">
+
+        {/* Header Actions */}
+        <div className="flex items-center gap-4">
+          {/* Settings Link */}
+          <Link href={`/p/${slug}/settings`}>
+            <Button plain title="Portföy Ayarları">
+              <Cog6ToothIcon className="h-5 w-5" />
+            </Button>
+          </Link>
+
+          {/* Price refresh indicator */}
+          <div className="flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400">
           {pricesLoading && (
             <span className="flex items-center gap-1">
               <Spinner size="sm" />
@@ -318,6 +327,7 @@ export default function PortfolioDashboardPage({ params }: PortfolioDashboardPag
               Maliyet bazlı (fiyat alınamadı)
             </span>
           )}
+          </div>
         </div>
       </div>
 

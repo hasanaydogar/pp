@@ -114,7 +114,7 @@ export default function PortfolioDetailPage({ params }: PortfolioDetailPageProps
           </Text>
         </div>
         <div className="flex items-center gap-2">
-          <Link href={`/portfolios/${portfolio.id}/edit`}>
+          <Link href={`/p/${(portfolio as any).slug || createSlug(portfolio.name)}/settings`}>
             <Button>
               <PencilIcon className="mr-2 size-4" />
               Edit
