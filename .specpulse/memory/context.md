@@ -5,8 +5,11 @@
 - **SpecPulse Version**: 2.7.1
 - **AI Assistant**: Not configured
 
-## Active Feature: None
-- Feature 011 completed. Use `/sp-continue 016` to start next feature.
+## Active Feature: 018-login-redirect-improvement
+- Feature ID: 018
+- Branch: claude/fix-login-redirect-wyUGm
+- Started: 2026-01-21
+- Description: Login sonrası /dashboard yerine son açılan portföy sayfasına yönlendirme
 
 ## Pending Features
 - **016-cash-dividend-bugfix-refactoring** - Nakit & Temettü modülü bug fix ve refactoring (22 tasks)
