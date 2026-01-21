@@ -35,6 +35,10 @@ export function sortAssets(
         aVal = a.weight;
         bVal = b.weight;
         break;
+      case 'currentPrice':
+        aVal = a.currentPrice;
+        bVal = b.currentPrice;
+        break;
       case 'currentValue':
         aVal = a.currentValue;
         bVal = b.currentValue;
@@ -121,10 +125,11 @@ export function calculateAssetMetrics(
     const currentValue = Number(asset.quantity) * currentPrice;
     const positionDailyChange = Number(asset.quantity) * dailyChangeAmount;
     
-    return { 
-      asset, 
-      costBasis, 
-      currentValue, 
+    return {
+      asset,
+      costBasis,
+      currentPrice,
+      currentValue,
       hasLivePrice: !!priceData,
       dailyChangePercent,
       dailyChangeAmount,
@@ -139,10 +144,11 @@ export function calculateAssetMetrics(
     : assetsWithValues.reduce((sum, a) => sum + a.currentValue, 0);
   
   // Second pass: calculate weights and categories
-  return assetsWithValues.map(({ 
-    asset, 
-    costBasis, 
-    currentValue, 
+  return assetsWithValues.map(({
+    asset,
+    costBasis,
+    currentPrice,
+    currentValue,
     dailyChangePercent,
     dailyChangeAmount,
     positionDailyChange,
@@ -151,13 +157,14 @@ export function calculateAssetMetrics(
     const gainLoss = currentValue - costBasis;
     const gainLossPercent = costBasis > 0 ? (gainLoss / costBasis) * 100 : 0;
     const weight = calculatedTotal > 0 ? currentValue / calculatedTotal : 0;
-    
+
     // Determine category based on weight thresholds
     const category = determineCategory(weight, p);
     const isOverWeight = weight > p.max_weight_per_stock;
-    
+
     return {
       ...asset,
+      currentPrice,
       currentValue,
       costBasis,
       gainLoss,

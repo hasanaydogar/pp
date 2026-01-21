@@ -63,7 +63,18 @@ export function SortableAssetsTable({
               >
                 Sembol
               </SortableTableHeader>
-              
+
+              <SortableTableHeader
+                column="currentPrice"
+                currentSort={sortColumn}
+                direction={sortDirection}
+                onSort={onSort}
+                align="right"
+                className="hidden sm:table-cell"
+              >
+                Son Fiyat
+              </SortableTableHeader>
+
               <SortableTableHeader
                 column="weight"
                 currentSort={sortColumn}
@@ -156,14 +167,19 @@ export function SortableAssetsTable({
                 
                 {/* Symbol */}
                 <td className="py-2 px-3">
-                  <Link 
-                    href={getAssetUrl(slug, asset.symbol)} 
+                  <Link
+                    href={getAssetUrl(slug, asset.symbol)}
                     className="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
                   >
                     {asset.symbol}
                   </Link>
                 </td>
-                
+
+                {/* Current Price - Hidden on mobile */}
+                <td className="hidden sm:table-cell py-2 px-3 text-right text-sm text-zinc-900 dark:text-white tabular-nums">
+                  {formatCurrency(asset.currentPrice, displayCurrency)}
+                </td>
+
                 {/* Weight */}
                 <td className="py-2 px-3 text-right">
                   <WeightIndicator

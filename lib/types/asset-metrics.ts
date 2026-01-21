@@ -6,9 +6,12 @@ import { PositionCategory } from './sector';
 // ============================================================================
 
 export interface AssetWithMetrics extends Asset {
+  /** Current market price per share */
+  currentPrice: number;
+
   /** Current market value (quantity * current_price) */
   currentValue: number;
-  
+
   /** Total cost basis (quantity * average_buy_price) */
   costBasis: number;
   
@@ -44,12 +47,13 @@ export interface AssetWithMetrics extends Asset {
 // SORTING TYPES
 // ============================================================================
 
-export type SortColumn = 
-  | 'symbol' 
-  | 'weight' 
-  | 'currentValue' 
-  | 'costBasis' 
-  | 'gainLoss' 
+export type SortColumn =
+  | 'symbol'
+  | 'weight'
+  | 'currentPrice'
+  | 'currentValue'
+  | 'costBasis'
+  | 'gainLoss'
   | 'gainLossPercent'
   | 'category'
   | 'dailyChangePercent'
