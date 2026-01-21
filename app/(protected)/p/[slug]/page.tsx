@@ -223,6 +223,7 @@ export default function PortfolioDashboardPage({ params }: PortfolioDashboardPag
   }, [assets, cashAmount, policy, livePriceMap, livePrices, sortColumn, sortDirection]);
 
   // Create snapshot when we have valid data
+  // Note: dailyChange is calculated server-side based on previous snapshot
   useEffect(() => {
     if (portfolio?.id && totalValue > 0 && !pricesLoading) {
       const assetsValue = totalValue - cashAmount;
@@ -231,14 +232,13 @@ export default function PortfolioDashboardPage({ params }: PortfolioDashboardPag
         totalValue,
         assetsValue,
         cashValue: cashAmount,
-        dailyChange,
-        dailyChangePercent,
+        // Don't send dailyChange - API calculates it from previous snapshot
       }).then(() => {
         // Refetch performance data after snapshot created
         refetchPerformance();
       });
     }
-  }, [portfolio?.id, totalValue, cashAmount, dailyChange, dailyChangePercent, pricesLoading]);
+  }, [portfolio?.id, totalValue, cashAmount, pricesLoading]);
 
   if (!slug) {
     return (
