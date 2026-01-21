@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { usePortfolio } from '@/lib/context/portfolio-context';
 import { useAssets } from '@/lib/hooks/use-assets';
+import { useLivePricesMultiCurrency } from '@/lib/hooks/use-live-prices';
 import { Heading } from '@/components/ui/heading';
 import { Text } from '@/components/ui/text';
 import { Input, InputGroup } from '@/components/ui/input';
@@ -12,13 +13,12 @@ import { Spinner } from '@/components/ui/spinner';
 import { ErrorMessage } from '@/components/ui/error-message';
 import { Button } from '@/components/ui/button';
 import { AssetType } from '@/lib/types/portfolio';
-import { SUPPORTED_CURRENCIES } from '@/lib/types/currency';
 import Link from 'next/link';
 import clsx from 'clsx';
-import { MagnifyingGlassIcon, ArrowUpIcon, ArrowDownIcon } from '@heroicons/react/20/solid';
+import { MagnifyingGlassIcon, ArrowUpIcon, ArrowDownIcon, ArrowPathIcon } from '@heroicons/react/20/solid';
 import { createSlug, getAssetUrl } from '@/lib/utils/slug';
 
-type SortField = 'symbol' | 'type' | 'quantity' | 'price' | 'value';
+type SortField = 'symbol' | 'type' | 'quantity' | 'price' | 'value' | 'currentPrice' | 'marketValue' | 'change';
 type SortDirection = 'asc' | 'desc';
 
 export default function AssetsPage() {
@@ -26,8 +26,27 @@ export default function AssetsPage() {
   const { assets, loading, error } = useAssets(
     activePortfolioId ? { portfolioId: activePortfolioId } : undefined
   );
-  
+
   const activePortfolio = portfolios.find(p => p.id === activePortfolioId);
+
+  // Prepare assets for live price fetching
+  const priceRequests = useMemo(() => {
+    return assets.map(asset => ({
+      symbol: asset.symbol,
+      currency: asset.currency || 'USD',
+    }));
+  }, [assets]);
+
+  // Fetch live prices for all assets
+  const {
+    getPrice,
+    loading: pricesLoading,
+    refetch: refetchPrices,
+    lastUpdated: pricesLastUpdated,
+  } = useLivePricesMultiCurrency(priceRequests, {
+    enabled: assets.length > 0,
+    refreshInterval: 5 * 60 * 1000, // Auto-refresh every 5 minutes
+  });
 
   // Filter and sort state
   const [searchQuery, setSearchQuery] = useState('');
@@ -73,8 +92,11 @@ export default function AssetsPage() {
 
     // Sorting
     filtered.sort((a, b) => {
-      let aValue: any;
-      let bValue: any;
+      let aValue: number | string;
+      let bValue: number | string;
+
+      const aPriceData = getPrice(a.symbol);
+      const bPriceData = getPrice(b.symbol);
 
       switch (sortField) {
         case 'symbol':
@@ -97,6 +119,18 @@ export default function AssetsPage() {
           aValue = Number(a.quantity) * Number(a.average_buy_price);
           bValue = Number(b.quantity) * Number(b.average_buy_price);
           break;
+        case 'currentPrice':
+          aValue = aPriceData?.price ?? 0;
+          bValue = bPriceData?.price ?? 0;
+          break;
+        case 'marketValue':
+          aValue = (aPriceData?.price ?? 0) * Number(a.quantity);
+          bValue = (bPriceData?.price ?? 0) * Number(b.quantity);
+          break;
+        case 'change':
+          aValue = aPriceData?.changePercent ?? 0;
+          bValue = bPriceData?.changePercent ?? 0;
+          break;
         default:
           return 0;
       }
@@ -107,7 +141,7 @@ export default function AssetsPage() {
     });
 
     return filtered;
-  }, [assets, searchQuery, typeFilter, currencyFilter, sortField, sortDirection]);
+  }, [assets, searchQuery, typeFilter, currencyFilter, sortField, sortDirection, getPrice]);
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -231,12 +265,29 @@ export default function AssetsPage() {
             )}
           </div>
 
-          {/* Results count */}
-          {filteredAndSortedAssets.length !== assets.length && (
-            <Text className="text-sm text-zinc-600 dark:text-zinc-400">
-              Showing {filteredAndSortedAssets.length} of {assets.length} assets
-            </Text>
-          )}
+          {/* Results count and price refresh */}
+          <div className="flex items-center justify-between">
+            {filteredAndSortedAssets.length !== assets.length && (
+              <Text className="text-sm text-zinc-600 dark:text-zinc-400">
+                Showing {filteredAndSortedAssets.length} of {assets.length} assets
+              </Text>
+            )}
+            <div className="ml-auto flex items-center gap-2">
+              {pricesLastUpdated && (
+                <Text className="text-xs text-zinc-500 dark:text-zinc-400">
+                  Prices updated: {pricesLastUpdated.toLocaleTimeString()}
+                </Text>
+              )}
+              <Button
+                onClick={() => refetchPrices()}
+                disabled={pricesLoading}
+                className="flex items-center gap-1 text-xs"
+              >
+                <ArrowPathIcon className={clsx('size-4', pricesLoading && 'animate-spin')} />
+                Refresh
+              </Button>
+            </div>
+          </div>
         </div>
       )}
 
@@ -310,26 +361,48 @@ export default function AssetsPage() {
                 </TableHeader>
                 <TableHeader className="text-right">
                   <button
-                    onClick={() => handleSort('value')}
+                    onClick={() => handleSort('currentPrice')}
                     className="ml-auto flex items-center hover:text-zinc-900 dark:hover:text-white"
                   >
-                    Value
-                    <SortIcon field="value" />
+                    Current Price
+                    <SortIcon field="currentPrice" />
+                  </button>
+                </TableHeader>
+                <TableHeader className="text-right">
+                  <button
+                    onClick={() => handleSort('change')}
+                    className="ml-auto flex items-center hover:text-zinc-900 dark:hover:text-white"
+                  >
+                    Change
+                    <SortIcon field="change" />
+                  </button>
+                </TableHeader>
+                <TableHeader className="text-right">
+                  <button
+                    onClick={() => handleSort('marketValue')}
+                    className="ml-auto flex items-center hover:text-zinc-900 dark:hover:text-white"
+                  >
+                    Market Value
+                    <SortIcon field="marketValue" />
                   </button>
                 </TableHeader>
               </TableRow>
             </TableHead>
             <TableBody>
               {filteredAndSortedAssets.map((asset) => {
-                const value = Number(asset.quantity) * Number(asset.average_buy_price);
-                const portfolioSlug = activePortfolio ? createSlug(activePortfolio.name) : '';
+                const portfolioSlug = activePortfolio?.slug || (activePortfolio ? createSlug(activePortfolio.name) : '');
                 const assetUrl = portfolioSlug ? getAssetUrl(portfolioSlug, asset.symbol) : `/assets/${asset.id}`;
-                
+                const priceData = getPrice(asset.symbol);
+                const currentPrice = priceData?.price ?? null;
+                const changePercent = priceData?.changePercent ?? null;
+                const marketValue = currentPrice !== null ? currentPrice * Number(asset.quantity) : null;
+                const currency = asset.currency || 'USD';
+
                 return (
                   <TableRow key={asset.id}>
                     <TableCell>
-                      <Link 
-                        href={assetUrl} 
+                      <Link
+                        href={assetUrl}
                         className="text-indigo-600 hover:text-indigo-500 dark:text-indigo-400"
                       >
                         {asset.symbol}
@@ -345,18 +418,57 @@ export default function AssetsPage() {
                     <TableCell className="text-right">
                       {Number(asset.average_buy_price).toLocaleString('en-US', {
                         style: 'currency',
-                        currency: asset.currency || 'USD',
+                        currency,
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2,
                       })}
                     </TableCell>
+                    <TableCell className="text-right">
+                      {pricesLoading && !currentPrice ? (
+                        <span className="inline-block h-4 w-16 animate-pulse rounded bg-zinc-200 dark:bg-zinc-700" />
+                      ) : currentPrice !== null ? (
+                        currentPrice.toLocaleString('en-US', {
+                          style: 'currency',
+                          currency,
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })
+                      ) : (
+                        <span className="text-zinc-400">-</span>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {pricesLoading && changePercent === null ? (
+                        <span className="inline-block h-4 w-12 animate-pulse rounded bg-zinc-200 dark:bg-zinc-700" />
+                      ) : changePercent !== null ? (
+                        <span
+                          className={clsx(
+                            'font-medium',
+                            changePercent >= 0
+                              ? 'text-green-600 dark:text-green-400'
+                              : 'text-red-600 dark:text-red-400'
+                          )}
+                        >
+                          {changePercent >= 0 ? '+' : ''}
+                          {changePercent.toFixed(2)}%
+                        </span>
+                      ) : (
+                        <span className="text-zinc-400">-</span>
+                      )}
+                    </TableCell>
                     <TableCell className="text-right font-medium">
-                      {value.toLocaleString('en-US', {
-                        style: 'currency',
-                        currency: asset.currency || 'USD',
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })}
+                      {pricesLoading && marketValue === null ? (
+                        <span className="inline-block h-4 w-20 animate-pulse rounded bg-zinc-200 dark:bg-zinc-700" />
+                      ) : marketValue !== null ? (
+                        marketValue.toLocaleString('en-US', {
+                          style: 'currency',
+                          currency,
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })
+                      ) : (
+                        <span className="text-zinc-400">-</span>
+                      )}
                     </TableCell>
                   </TableRow>
                 );
