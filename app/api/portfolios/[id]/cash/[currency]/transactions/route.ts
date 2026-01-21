@@ -120,17 +120,19 @@ export async function POST(request: Request, { params }: RouteParams) {
       return NextResponse.json({ error: validated.error.issues }, { status: 400 });
     }
 
-    // Calculate new amount
+    // Calculate signed amount (positive for inflows, negative for outflows)
     const sign = getCashTransactionSign(validated.data.type);
-    const newAmount = cashPosition.amount + (validated.data.amount * sign);
+    const signedAmount = validated.data.amount * sign;
+    const newAmount = cashPosition.amount + signedAmount;
 
     // Start transaction: create cash transaction and update position
+    // Store signed amount for consistency with getCashFlowData calculations
     const { data: transaction, error: txError } = await supabase
       .from('cash_transactions')
       .insert({
         cash_position_id: cashPosition.id,
         type: validated.data.type,
-        amount: validated.data.amount,
+        amount: signedAmount,
         date: validated.data.date || new Date().toISOString(),
         notes: validated.data.notes,
         related_transaction_id: validated.data.related_transaction_id,
@@ -226,10 +228,10 @@ export async function DELETE(request: Request, { params }: RouteParams) {
       return NextResponse.json({ error: 'Transaction not found' }, { status: 404 });
     }
 
-    // Calculate the reversal amount
-    const sign = getCashTransactionSign(transaction.type);
-    const reversalAmount = transaction.amount * sign;
-    const newAmount = cashPosition.amount - reversalAmount;
+    // Calculate the reversal amount (transaction.amount is already signed)
+    // Deleting a deposit (-amount removes positive value)
+    // Deleting a withdrawal (-amount adds back the negative, effectively adding)
+    const newAmount = cashPosition.amount - transaction.amount;
 
     // Delete the transaction
     const { error: deleteError } = await supabase

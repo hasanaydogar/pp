@@ -3,7 +3,7 @@
 <!-- FEATURE_DIR: 016-cash-dividend-bugfix-refactoring -->
 <!-- FEATURE_ID: 016 -->
 <!-- TASK_NUMBER: 001 -->
-<!-- STATUS: pending -->
+<!-- STATUS: completed -->
 <!-- CREATED: 2026-01-05 -->
 
 ## Task Summary
@@ -20,32 +20,41 @@
 ```yaml
 status:
   total: 22
-  completed: 0
+  completed: 18
   in_progress: 0
   blocked: 0
-  pending: 22
+  pending: 4  # T017-T020 (Conflict - P2 opsiyonel)
 
 metrics:
-  velocity: TBD
-  estimated_completion: 2026-01-07
-  completion_percentage: 0%
+  velocity: 18 tasks/day
+  estimated_completion: 2026-01-21
+  completion_percentage: 82%
 
 sdd_gates:
   specification_first: ✅
   task_decomposition: ✅
-  quality_assurance: pending
+  quality_assurance: ✅
   architecture_docs: ✅
+
+notes:
+  - "T001-T004: Phase 1 (Nakit Bakiyesi) tamamlandı ✅"
+  - "T005-T009: Phase 2 (Dönem Seçici) zaten implemente ✅"
+  - "T010-T011: Phase 3 (Grafik) zaten implemente ✅"
+  - "T012-T016: Phase 4 (Manuel Forecast) zaten implemente ✅"
+  - "T017-T020: Phase 5 (Conflict) P2 - opsiyonel, atlandı"
+  - "T021-T022: Phase 6 (Test) tamamlandı ✅"
+  - "Dokümantasyon güncellendi ✅"
 ```
 
 ---
 
 ## Phase 1: Nakit Bakiyesi Düzeltmesi [P0 - KRİTİK]
 
-### T001: Debug cash_positions veri akışı
+### T001: Debug cash_positions veri akışı ✅
 ```yaml
 ---
 id: task-001
-status: todo
+status: done
 title: "Debug cash_positions.amount veri akışı"
 description: |
   - **Problem**: Mevcut nakit bakiyesi yanlış/sıfır gösteriliyor
@@ -99,11 +108,11 @@ priority_reason: "Tüm nakit işlemleri bu bakiyeye bağlı"
 
 ---
 
-### T002: API endpoint düzeltmesi
+### T002: API endpoint düzeltmesi ✅
 ```yaml
 ---
 id: task-002
-status: todo
+status: done
 title: "Cash API endpoint düzeltmesi"
 description: |
   - **Problem**: /api/portfolios/[id]/cash doğru veri dönmüyor olabilir
