@@ -178,7 +178,7 @@ export default function PortfolioDashboardPage({ params }: PortfolioDashboardPag
   }, [livePrices]);
 
   // Calculate metrics and sort assets
-  const { assetsWithMetrics, totalValue, totalCostBasis, cashPercent, dailyChange, dailyChangePercent } = useMemo(() => {
+  const { assetsWithMetrics, totalValue, totalCostBasis, cashPercent } = useMemo(() => {
     // Calculate metrics for each asset with live prices
     const withMetrics = calculateAssetMetrics(assets, 0, policy, livePriceMap);
     
@@ -196,31 +196,30 @@ export default function PortfolioDashboardPage({ params }: PortfolioDashboardPag
     
     // Sort
     const sorted = sortAssets(assetsWithCorrectWeights, sortColumn, sortDirection);
-    
-    // Calculate daily change from live prices
-    let dailyChange = 0;
-    let previousTotal = 0;
-    
-    Object.entries(livePrices).forEach(([symbol, priceData]) => {
-      const asset = assets.find(a => a.symbol === symbol);
-      if (asset && priceData.change !== undefined) {
-        dailyChange += priceData.change * Number(asset.quantity);
-        previousTotal += priceData.previousClose * Number(asset.quantity);
-      }
-    });
-    
-    const dailyChangePercent = previousTotal > 0 ? (dailyChange / previousTotal) * 100 : 0;
-    
+
     return {
       assetsWithMetrics: sorted,
       totalValue,
       totalAssetsValue,
       totalCostBasis,
       cashPercent,
-      dailyChange,
-      dailyChangePercent,
     };
   }, [assets, cashAmount, policy, livePriceMap, livePrices, sortColumn, sortDirection]);
+
+  // Get today's daily change from the latest snapshot (calculated server-side)
+  const { todayDailyChange, todayDailyChangePercent } = useMemo(() => {
+    if (!snapshots || snapshots.length === 0) {
+      return { todayDailyChange: 0, todayDailyChangePercent: 0 };
+    }
+
+    // Get the most recent snapshot (last in the array, sorted by date ascending)
+    const latestSnapshot = snapshots[snapshots.length - 1];
+
+    return {
+      todayDailyChange: Number(latestSnapshot.daily_change) || 0,
+      todayDailyChangePercent: Number(latestSnapshot.daily_change_percent) || 0,
+    };
+  }, [snapshots]);
 
   // Create snapshot when we have valid data
   // Note: dailyChange is calculated server-side based on previous snapshot
@@ -324,8 +323,8 @@ export default function PortfolioDashboardPage({ params }: PortfolioDashboardPag
       {/* Summary Cards */}
       <PortfolioSummaryCards
         totalValue={totalValue}
-        dailyChange={dailyChange}
-        dailyChangePercent={dailyChangePercent}
+        dailyChange={todayDailyChange}
+        dailyChangePercent={todayDailyChangePercent}
         cashAmount={cashAmount}
         cashPercent={cashPercent}
         cashTarget={p.cash_target_percent}
@@ -337,8 +336,8 @@ export default function PortfolioDashboardPage({ params }: PortfolioDashboardPag
       {/* Performance Summary */}
       <PerformanceSummary
         summary={performanceSummary}
-        todayChange={dailyChange}
-        todayChangePercent={dailyChangePercent}
+        todayChange={todayDailyChange}
+        todayChangePercent={todayDailyChangePercent}
         period={performancePeriod}
         currency={displayCurrency}
       />
