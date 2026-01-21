@@ -5,11 +5,14 @@
 - **SpecPulse Version**: 2.7.1
 - **AI Assistant**: Not configured
 
-## Active Feature: None
-- Feature 011 completed. Use `/sp-continue 016` to start next feature.
+## Active Feature: 016-cash-dividend-bugfix-refactoring
+- **ID**: 016
+- **Name**: Nakit & Temettü Bug Fix ve Refactoring
+- **Status**: 0% complete (0/22 tasks)
+- **Switched To**: 2026-01-21 (via /sp-continue)
 
 ## Pending Features
-- **016-cash-dividend-bugfix-refactoring** - Nakit & Temettü modülü bug fix ve refactoring (22 tasks)
+- None
 
 ## Completed Features
 - **011-architecture-redesign** - Portfolio Architecture Redesign (COMPLETED 2026-01-21)
