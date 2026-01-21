@@ -12,8 +12,12 @@ import { ErrorMessage } from '@/components/ui/error-message';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { DeleteAssetDialog } from '@/components/assets/delete-asset-dialog';
+import { SectorBadge } from '@/components/assets/sector-badge';
+import { CategoryBadge } from '@/components/assets/category-badge';
+import { AssetMetadataForm } from '@/components/assets/asset-metadata-form';
 import Link from 'next/link';
-import { PlusIcon, PencilIcon, TrashIcon, ArrowPathIcon } from '@heroicons/react/20/solid';
+import { PlusIcon, PencilIcon, TrashIcon, ArrowPathIcon, Cog6ToothIcon } from '@heroicons/react/20/solid';
+import { AssetMetadata, getEffectiveSector, getEffectiveCategory } from '@/lib/types/sector';
 import { TransactionType } from '@/lib/types/portfolio';
 import { DeleteTransactionDialog } from '@/components/transactions/delete-transaction-dialog';
 import { usePortfolio } from '@/lib/context/portfolio-context';
@@ -119,6 +123,27 @@ export default function AssetDetailPage({ params }: AssetDetailPageProps) {
   const [deleteAssetDialogOpen, setDeleteAssetDialogOpen] = React.useState(false);
   const [deleteTransactionDialogOpen, setDeleteTransactionDialogOpen] = React.useState(false);
   const [selectedTransaction, setSelectedTransaction] = React.useState<any>(null);
+  const [metadataDialogOpen, setMetadataDialogOpen] = React.useState(false);
+  const [assetMetadata, setAssetMetadata] = React.useState<AssetMetadata | null>(null);
+
+  // Fetch asset metadata
+  React.useEffect(() => {
+    if (!asset?.id) return;
+
+    const fetchMetadata = async () => {
+      try {
+        const response = await fetch(`/api/assets/${asset.id}/metadata`);
+        if (response.ok) {
+          const data = await response.json();
+          setAssetMetadata(data);
+        }
+      } catch (err) {
+        console.error('Error fetching asset metadata:', err);
+      }
+    };
+
+    fetchMetadata();
+  }, [asset?.id]);
 
   if (!slug || !urlSymbol) {
     return (
@@ -205,6 +230,22 @@ export default function AssetDetailPage({ params }: AssetDetailPageProps) {
             <span className="inline-flex items-center rounded-md bg-zinc-100 px-2 py-1 text-xs font-medium text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">
               {asset.type}
             </span>
+            {assetMetadata && (
+              <>
+                {(assetMetadata.sector || assetMetadata.api_sector || assetMetadata.manual_sector) && (
+                  <SectorBadge
+                    sector={getEffectiveSector(assetMetadata)}
+                    apiSector={assetMetadata.api_sector}
+                  />
+                )}
+                {getEffectiveCategory(assetMetadata) && (
+                  <CategoryBadge
+                    category={getEffectiveCategory(assetMetadata)}
+                    isManualOverride={!!assetMetadata.manual_category}
+                  />
+                )}
+              </>
+            )}
           </div>
           {companyName && companyName !== asset.symbol && (
             <Text className="mt-1 text-lg text-zinc-600 dark:text-zinc-400">
@@ -232,6 +273,14 @@ export default function AssetDetailPage({ params }: AssetDetailPageProps) {
           </Link>
           <Button
             plain
+            onClick={() => setMetadataDialogOpen(true)}
+            title="Metadata Düzenle"
+          >
+            <Cog6ToothIcon className="mr-2 size-5" />
+            Metadata
+          </Button>
+          <Button
+            plain
             onClick={() => setDeleteAssetDialogOpen(true)}
             className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
           >
@@ -240,6 +289,16 @@ export default function AssetDetailPage({ params }: AssetDetailPageProps) {
           </Button>
         </div>
       </div>
+
+      {/* Asset Metadata Form Dialog */}
+      {asset.id && (
+        <AssetMetadataForm
+          assetId={asset.id}
+          open={metadataDialogOpen}
+          onClose={() => setMetadataDialogOpen(false)}
+          onSave={(metadata) => setAssetMetadata(metadata)}
+        />
+      )}
 
       <DeleteAssetDialog
         open={deleteAssetDialogOpen}

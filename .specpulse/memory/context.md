@@ -5,42 +5,33 @@
 - **SpecPulse Version**: 2.7.1
 - **AI Assistant**: Not configured
 
-## Active Feature: 017-portfolio-policy-editor
-- Feature ID: 017
-- Branch: 017-portfolio-policy-editor
-- Started: 2026-01-06
-- Description: Portföy Amacı sayfasındaki politikaları düzenlenebilir hale getirme
+## Active Feature: None
+- No active feature. Use `/sp-feature` to start a new feature.
 
-## Previous Feature: 016-cash-dividend-bugfix-refactoring
-- Feature ID: 016
-- Branch: 016-cash-dividend-bugfix-refactoring
-- Started: 2026-01-05
-- Description: Nakit & Temettü modülü bug fix ve refactoring - Bakiye düzeltme, dönem seçici, takvim manuel kayıt, conflict yönetimi
-
-## Previous Feature: 011-architecture-redesign
-- Feature ID: 011
-- Branch: 011-architecture-redesign
-- Started: 2026-01-03
-- Description: Portfolio mimarisi yeniden tasarımı - Cash management, policies, sectors, summary
-
-## Previous Feature: 008-asset-live-prices
-- Feature ID: 008
-- Branch: 008-asset-live-prices
-- Started: 2026-01-03
-- Description: Asset detay sayfasına canlı fiyat verisi ve gerçek değer hesaplaması ekleme
+## Pending Features
+- **016-cash-dividend-bugfix-refactoring** - Nakit & Temettü modülü bug fix ve refactoring (22 tasks)
+- **011-architecture-redesign** - Portfolio mimarisi yeniden tasarımı (35 tasks)
 
 ## Completed Features
-- **001-user-authentication** - OAuth2 Authentication with JWT Tokens (COMPLETED)
-- **002-portfolio-tracker** - Portfolio Tracker Database & API (COMPLETED)
-- **003-ui-layout** - Layout & Sidebar (COMPLETED)
-- **004-frontend-backend-integration** - Frontend-Backend Integration (COMPLETED)
-- **006-currency-selection-ui** - Currency Selection UI (COMPLETED)
+- **017-portfolio-policy-editor** - Portföy Amacı politikaları düzenleme (COMPLETED 2026-01-16)
+- **015-cash-dividend-enhancement** - Nakit ve Temettü Modülü Geliştirmesi (COMPLETED)
+- **014-daily-performance-tracking** - Günlük Performans Takibi (COMPLETED)
+- **013-cash-dividends-performance** - Nakit Yönetimi, Temettü Takibi ve Performans (COMPLETED)
+- **012-portfolio-assets-redesign** - Portföy Varlıkları Sayfası Redesign (COMPLETED)
+- **010-url-structure** - URL Structure Redesign with Custom Slug (COMPLETED)
+- **009-asset-price-chart** - Asset Price Chart with Lightweight Charts (COMPLETED)
+- **008-asset-live-prices** - Asset Detail Page with Live Market Prices (COMPLETED)
 - **007-portfolio-copy-paste-import** - Copy-Paste Import for Portfolios (COMPLETED)
+- **006-currency-selection-ui** - Currency Selection UI (COMPLETED)
+- **004-frontend-backend-integration** - Frontend-Backend Integration (COMPLETED)
+- **003-ui-layout** - Layout & Sidebar (COMPLETED)
+- **002-portfolio-tracker** - Portfolio Tracker Database & API (COMPLETED)
+- **001-user-authentication** - OAuth2 Authentication with JWT Tokens (COMPLETED)
 
 ## Recent Activity
-- Feature 006 (Currency Selection UI) completed on 2025-12-02
-- Currency selector added to topbar
-- Dashboard updated to use selected currency
+- Feature 017 (Portfolio Policy Editor) completed on 2026-01-16
+- Policy editor card with view/edit modes
+- Form validation and save functionality
 
 ---
 *This file is automatically maintained by SpecPulse*
