@@ -5,12 +5,14 @@
 - **SpecPulse Version**: 2.7.1
 - **AI Assistant**: Not configured
 
-## Active Feature: None
-- No active feature. Use `/sp-feature` to start a new feature.
+## Active Feature: 011-architecture-redesign
+- **ID**: 011
+- **Name**: Portfolio Architecture Redesign
+- **Status**: 97% complete (34/35 tasks)
+- **Switched To**: 2026-01-21 (via /sp-continue)
 
 ## Pending Features
 - **016-cash-dividend-bugfix-refactoring** - Nakit & Temettü modülü bug fix ve refactoring (22 tasks)
-- **011-architecture-redesign** - Portfolio mimarisi yeniden tasarımı (35 tasks)
 
 ## Completed Features
 - **017-portfolio-policy-editor** - Portföy Amacı politikaları düzenleme (COMPLETED 2026-01-16)
@@ -29,9 +31,15 @@
 - **001-user-authentication** - OAuth2 Authentication with JWT Tokens (COMPLETED)
 
 ## Recent Activity
-- Feature 017 (Portfolio Policy Editor) completed on 2026-01-16
-- Policy editor card with view/edit modes
-- Form validation and save functionality
+- Feature 011 T034 (API Integration Tests) completed on 2026-01-21
+- Added 7 new test files with 106 passing tests:
+  - Portfolio types API tests
+  - Portfolio policies API tests
+  - Cash management API tests
+  - Summary API tests
+  - Position category utility tests
+  - Cash helper function tests
+  - Sector helper function tests
 
 ---
 *This file is automatically maintained by SpecPulse*
