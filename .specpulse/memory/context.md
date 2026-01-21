@@ -8,8 +8,15 @@
 ## Active Feature: 016-cash-dividend-bugfix-refactoring
 - **ID**: 016
 - **Name**: Nakit & Temettü Bug Fix ve Refactoring
-- **Status**: 0% complete (0/22 tasks)
+- **Status**: 77% complete (17/22 tasks)
 - **Switched To**: 2026-01-21 (via /sp-continue)
+- **Progress**:
+  - Phase 1 (T001-T004): Nakit Bakiyesi Düzeltmesi ✅
+  - Phase 2 (T005-T009): Dönem Seçici (zaten implemente) ✅
+  - Phase 3 (T010-T011): Grafik İyileştirmesi (zaten implemente) ✅
+  - Phase 4 (T012-T016): Manuel Forecast (zaten implemente) ✅
+  - Phase 5 (T017-T020): Conflict Yönetimi (P2 - opsiyonel) ⏳
+  - Phase 6 (T021-T022): Test & Doğrulama ⏳
 
 ## Pending Features
 - None
@@ -32,6 +39,9 @@
 - **001-user-authentication** - OAuth2 Authentication with JWT Tokens (COMPLETED)
 
 ## Recent Activity
+- Feature 016 in progress (17/22 tasks - 77%)
+  - T001-T004: Fixed cash balance calculation (signed amounts in transactions)
+  - T021: Added period utility tests (29 tests)
 - Feature 011 COMPLETED on 2026-01-21 (35/35 tasks)
 - T035 (Documentation Update) completed:
   - docs/api/portfolio-types.md
