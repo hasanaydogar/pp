@@ -10,6 +10,7 @@ import { ErrorMessage } from '@/components/ui/error-message';
 import { PlusIcon, ArrowPathIcon, Cog6ToothIcon } from '@heroicons/react/20/solid';
 import { usePortfolio } from '@/lib/context/portfolio-context';
 import { useCurrency } from '@/lib/context/currency-context';
+import { useLastVisitedPortfolio } from '@/lib/hooks/use-last-visited-portfolio';
 import { useLivePrices } from '@/lib/hooks/use-live-prices';
 import { usePerformance } from '@/lib/hooks/use-performance';
 import { PortfolioSummaryCards } from '@/components/portfolio/portfolio-summary-cards';
@@ -52,6 +53,9 @@ export default function PortfolioDashboardPage({ params }: PortfolioDashboardPag
   
   const { setActivePortfolioId } = usePortfolio();
   const { currency } = useCurrency();
+
+  // Track last visited portfolio for navigation
+  useLastVisitedPortfolio();
   
   // Extract symbols for live price fetching
   const symbols = useMemo(() => assets.map(a => a.symbol), [assets]);

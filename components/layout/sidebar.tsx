@@ -3,7 +3,6 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
-  LayoutDashboard,
   Briefcase,
   Brain,
   Settings,
@@ -15,11 +14,6 @@ interface SidebarProps {
 }
 
 const navigation = [
-  {
-    name: 'Dashboard',
-    href: '/dashboard',
-    icon: LayoutDashboard,
-  },
   {
     name: 'My Assets',
     href: '/assets',

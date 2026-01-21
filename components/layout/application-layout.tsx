@@ -147,7 +147,7 @@ export function ApplicationLayout({
 
           <SidebarBody>
             <SidebarSection>
-              <SidebarItem href="/dashboard" current={pathname === '/dashboard'}>
+              <SidebarItem href="/portfolios" current={pathname === '/portfolios' || pathname.startsWith('/p/')}>
                 <HomeIcon />
                 <SidebarLabel>Varlıklar</SidebarLabel>
               </SidebarItem>
