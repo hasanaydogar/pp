@@ -24,6 +24,7 @@
 - None
 
 ## Completed Features
+- **018-login-redirect-improvement** - Login Redirect to Last Visited Portfolio (COMPLETED 2026-01-22)
 - **016-cash-dividend-bugfix-refactoring** - Nakit & Temettü Bug Fix ve Refactoring (COMPLETED 2026-01-21)
 - **011-architecture-redesign** - Portfolio Architecture Redesign (COMPLETED 2026-01-21)
 - **017-portfolio-policy-editor** - Portföy Amacı politikaları düzenleme (COMPLETED 2026-01-16)
