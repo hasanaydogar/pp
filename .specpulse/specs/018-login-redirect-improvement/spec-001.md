@@ -3,7 +3,7 @@
 <!-- FEATURE_DIR: 018-login-redirect-improvement -->
 <!-- FEATURE_ID: 018 -->
 <!-- SPEC_NUMBER: 001 -->
-<!-- STATUS: pending -->
+<!-- STATUS: completed -->
 <!-- CREATED: 2026-01-21 -->
 
 ## Description
