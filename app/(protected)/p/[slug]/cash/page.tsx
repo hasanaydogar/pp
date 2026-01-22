@@ -24,6 +24,7 @@ import { CashTransaction, CashTransactionType } from '@/lib/types/cash';
 import { DividendSummary, ReinvestStrategy } from '@/lib/types/dividend';
 import { useCashFlow } from '@/lib/hooks/use-cash-flow';
 import { useDividendCalendar } from '@/lib/hooks/use-dividend-calendar';
+import { useLastVisitedPortfolio } from '@/lib/hooks/use-last-visited-portfolio';
 import { Period, formatPeriodLabel } from '@/lib/utils/period';
 
 // Type for pending dividends
@@ -45,6 +46,8 @@ interface CashPageProps {
 }
 
 export default function CashPage({ params }: CashPageProps) {
+  useLastVisitedPortfolio();
+
   const [slug, setSlug] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [portfolioId, setPortfolioId] = useState<string | null>(null);

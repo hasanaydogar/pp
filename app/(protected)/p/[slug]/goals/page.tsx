@@ -5,14 +5,17 @@ import { usePortfolio } from '@/lib/context/portfolio-context';
 import { Heading, Subheading } from '@/components/ui/heading';
 import { Text } from '@/components/ui/text';
 import { PolicyEditorCard } from '@/components/policy/policy-editor-card';
-import { 
+import {
   FlagIcon,
   ScaleIcon,
   BanknotesIcon,
   CalendarDaysIcon,
 } from '@heroicons/react/24/outline';
+import { useLastVisitedPortfolio } from '@/lib/hooks/use-last-visited-portfolio';
 
 export default function PortfolioGoalsPage() {
+  useLastVisitedPortfolio();
+
   const { portfolios, activePortfolioId } = usePortfolio();
   const activePortfolio = portfolios.find(p => p.id === activePortfolioId);
 

@@ -5,9 +5,9 @@ import { redirect } from 'next/navigation';
 export default async function LoginPage() {
   const user = await getCurrentUser();
 
-  // If already authenticated, redirect to dashboard
+  // If already authenticated, redirect to auth-redirect handler
   if (user) {
-    redirect('/dashboard');
+    redirect('/auth-redirect');
   }
 
   return (

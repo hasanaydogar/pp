@@ -20,6 +20,7 @@ import {
 } from '@/lib/utils/projection';
 import { DEFAULT_PORTFOLIO_SETTINGS, DEFAULT_PROJECTION_PERIODS } from '@/lib/types/portfolio-settings';
 import { useLivePrices } from '@/lib/hooks/use-live-prices';
+import { useLastVisitedPortfolio } from '@/lib/hooks/use-last-visited-portfolio';
 import { ArrowPathIcon, ExclamationTriangleIcon } from '@heroicons/react/20/solid';
 
 interface ProjectionPageProps {
@@ -27,6 +28,8 @@ interface ProjectionPageProps {
 }
 
 export default function ProjectionPage({ params }: ProjectionPageProps) {
+  useLastVisitedPortfolio();
+
   const [slug, setSlug] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
