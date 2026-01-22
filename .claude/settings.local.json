@@ -19,7 +19,9 @@
       "Bash(git commit:*)",
       "Bash(curl:*)",
       "Bash(npx supabase db execute:*)",
-      "Bash(git status:*)"
+      "Bash(git status:*)",
+      "Skill(sp-status)",
+      "Skill(sp-status:*)"
     ]
   }
 }
