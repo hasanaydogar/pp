@@ -3,7 +3,7 @@
 ## Project: personal-portfoy
 - **Created**: 2025-11-29T20:22:53.706100
 - **SpecPulse Version**: 2.7.1
-- **AI Assistant**: Not configured
+- **AI Assistant**: Claude Code
 
 ## Active Feature: None
 
