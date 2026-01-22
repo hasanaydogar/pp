@@ -5,16 +5,14 @@
 - **SpecPulse Version**: 2.7.1
 - **AI Assistant**: Not configured
 
-## Active Feature: 018-login-redirect-improvement
-- Feature ID: 018
-- Branch: claude/fix-login-redirect-wyUGm
-- Started: 2026-01-21
-- Description: Login sonrası /dashboard yerine son açılan portföy sayfasına yönlendirme
+## Active Feature: None
+- Feature 018 completed. Use `/sp-continue 016` to start next feature.
 
 ## Pending Features
 - **016-cash-dividend-bugfix-refactoring** - Nakit & Temettü modülü bug fix ve refactoring (22 tasks)
 
 ## Completed Features
+- **018-login-redirect-improvement** - Login Redirect to Last Visited Portfolio (COMPLETED 2026-01-22)
 - **011-architecture-redesign** - Portfolio Architecture Redesign (COMPLETED 2026-01-21)
 - **017-portfolio-policy-editor** - Portföy Amacı politikaları düzenleme (COMPLETED 2026-01-16)
 - **015-cash-dividend-enhancement** - Nakit ve Temettü Modülü Geliştirmesi (COMPLETED)
