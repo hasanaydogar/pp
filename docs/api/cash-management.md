@@ -233,11 +233,32 @@ Create a new cash transaction.
   "related_transaction_id": null,
   "date": "2025-01-01T00:00:00Z",
   "notes": "Maaş yatırımı",
-  "created_at": "2025-01-01T00:00:00Z"
+  "created_at": "2025-01-01T00:00:00Z",
+  "new_position_amount": 10000.00
 }
 ```
 
-**Note:** Cash position amount is automatically updated based on transaction type.
+**Response (WITHDRAW example):**
+```json
+{
+  "id": "uuid",
+  "cash_position_id": "uuid",
+  "type": "WITHDRAW",
+  "amount": -5000.00,
+  "related_transaction_id": null,
+  "date": "2025-01-01T00:00:00Z",
+  "notes": "Para çekme",
+  "created_at": "2025-01-01T00:00:00Z",
+  "new_position_amount": 5000.00
+}
+```
+
+**Notes:**
+- Cash position amount is automatically updated based on transaction type
+- Transaction amounts are stored as **signed values** in the database:
+  - Positive for inflows (DEPOSIT, SELL_ASSET, DIVIDEND, INTEREST, TRANSFER_IN)
+  - Negative for outflows (WITHDRAW, BUY_ASSET, FEE, TRANSFER_OUT)
+- The response `amount` field reflects the signed value stored
 
 **Status Codes:** 201, 400, 401, 404, 500
 
