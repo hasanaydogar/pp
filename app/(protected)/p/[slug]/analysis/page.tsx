@@ -5,14 +5,17 @@ import { usePortfolio } from '@/lib/context/portfolio-context';
 import { Heading, Subheading } from '@/components/ui/heading';
 import { Text } from '@/components/ui/text';
 import { Button } from '@/components/ui/button';
-import { 
+import {
   SparklesIcon,
   ChartBarIcon,
   LightBulbIcon,
   ArrowTrendingUpIcon,
 } from '@heroicons/react/24/outline';
+import { useLastVisitedPortfolio } from '@/lib/hooks/use-last-visited-portfolio';
 
 export default function PortfolioAnalysisPage() {
+  useLastVisitedPortfolio();
+
   const { portfolios, activePortfolioId } = usePortfolio();
   
   const activePortfolio = useMemo(() => {

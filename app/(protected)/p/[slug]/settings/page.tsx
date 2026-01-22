@@ -12,6 +12,7 @@ import { Spinner } from '@/components/ui/spinner';
 import { ErrorMessage } from '@/components/ui/error-message';
 import { PolicyEditorCard } from '@/components/portfolio/policy-editor-card';
 import { usePortfolio } from '@/lib/context/portfolio-context';
+import { useLastVisitedPortfolio } from '@/lib/hooks/use-last-visited-portfolio';
 import { ArrowLeftIcon, CheckIcon, PlusIcon, XMarkIcon } from '@heroicons/react/20/solid';
 import Link from 'next/link';
 
@@ -20,6 +21,8 @@ interface SettingsPageProps {
 }
 
 export default function PortfolioSettingsPage({ params }: SettingsPageProps) {
+  useLastVisitedPortfolio();
+
   const router = useRouter();
   const { setActivePortfolioId } = usePortfolio();
 
