@@ -3,7 +3,7 @@
 <!-- FEATURE_DIR: 007-portfolio-copy-paste-import -->
 <!-- FEATURE_ID: 007 -->
 <!-- TASK_LIST_ID: 001 -->
-<!-- STATUS: ready -->
+<!-- STATUS: completed -->
 <!-- CREATED: 2026-01-03 -->
 <!-- LAST_UPDATED: 2026-01-03 -->
 

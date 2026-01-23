@@ -3,7 +3,7 @@
 <!-- FEATURE_DIR: 008-asset-live-prices -->
 <!-- FEATURE_ID: 008 -->
 <!-- TASK_LIST_ID: 001 -->
-<!-- STATUS: pending -->
+<!-- STATUS: completed -->
 <!-- CREATED: 2026-01-03 -->
 <!-- LAST_UPDATED: 2026-01-03 -->
 
