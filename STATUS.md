@@ -1,6 +1,6 @@
 # Personal Portfoy - Status Tracking
 
-**Son Guncelleme:** 2026-01-21
+**Son Guncelleme:** 2026-01-23
 **Proje:** Personal Portfolio Tracker
 **Framework:** Next.js 16 (App Router) + TypeScript + Supabase
 
@@ -10,40 +10,39 @@
 
 | Metrik | Deger |
 |--------|-------|
-| **Toplam Feature** | 18 |
+| **Toplam Feature** | 17 |
 | **Tamamlanan** | 17 |
-| **Devam Eden** | 1 |
-| **Genel Ilerleme** | 94% |
+| **Devam Eden** | 0 |
+| **Genel Ilerleme** | 100% |
 
----
-
-## Aktif Feature
-
-### 018 - Login Redirect Improvement
-- **Durum:** IN PROGRESS
-- **Ilerleme:** 0/12 task (0%)
-- **Oncelik:** HIGH
-- **Olusturulma:** 2026-01-21
-
-**Aciklama:** Login sonrasi kullaniciyi son ziyaret ettigi portfoye yonlendirme ve dashboard kaldirma.
-
-**Bekleyen Tasklar:**
-- [ ] T001: useLastVisitedPortfolio hook olustur
-- [ ] T002: Hook'u portfoy ana sayfasina entegre et
-- [ ] T003: Hook'u portfoy alt sayfalarina entegre et
-- [ ] T004: Auth redirect sayfasi olustur
-- [ ] T005: Auth actions redirect URL guncelle
-- [ ] T006: Auth callback default redirect guncelle
-- [ ] T007: Login page redirect guncelle
-- [ ] T008: Dashboard klasorunu sil
-- [ ] T009: Sidebar dashboard linkini kaldir
-- [ ] T010: Application layout dashboard linkini kaldir
-- [ ] T011: Unit test yaz
-- [ ] T012: Manuel test ve dogrulama
+*Not: Feature ID 005 hic kullanilmadi (numaralama atlandi)*
 
 ---
 
 ## Son Tamamlanan Featurelar
+
+### 018 - Login Redirect Improvement
+- **Durum:** COMPLETED
+- **Ilerleme:** 12/12 task (100%)
+- **Tamamlanma:** 2026-01-22
+
+**Aciklama:** Login sonrasi kullaniciyi son ziyaret ettigi portfoye yonlendirme ve dashboard kaldirma.
+
+**Tamamlanan Tasklar:**
+- [x] T001: useLastVisitedPortfolio hook olustur
+- [x] T002: Hook'u portfoy ana sayfasina entegre et
+- [x] T003: Hook'u portfoy alt sayfalarina entegre et
+- [x] T004: Auth redirect sayfasi olustur
+- [x] T005: Auth actions redirect URL guncelle
+- [x] T006: Auth callback default redirect guncelle
+- [x] T007: Login page redirect guncelle
+- [x] T008: Dashboard klasorunu sil
+- [x] T009: Sidebar dashboard linkini kaldir
+- [x] T010: Application layout dashboard linkini kaldir
+- [x] T011: Unit test yaz
+- [x] T012: Manuel test ve dogrulama
+
+---
 
 ### 016 - Cash/Dividend Bugfix ve Refactoring
 - **Durum:** COMPLETED
@@ -112,7 +111,7 @@
 | 015 | Cash/Dividend Enhancement | COMPLETED | 100% | 2026-01-03 |
 | 016 | Cash/Dividend Bugfix | COMPLETED | 82% | 2026-01-21 |
 | 017 | Portfolio Policy Editor | COMPLETED | 100% | 2026-01-16 |
-| **018** | **Login Redirect** | **IN PROGRESS** | **0%** | - |
+| 018 | Login Redirect | COMPLETED | 100% | 2026-01-22 |
 
 ---
 
@@ -154,10 +153,7 @@
 
 ## Sonraki Adimlar
 
-### Oncelik 1 (Aktif)
-- [ ] **018 - Login Redirect Improvement** tamamla
-
-### Oncelik 2 (Planlanan)
+### Oncelik 1 (Planlanan)
 - [ ] AI Analysis ozellikleri
 - [ ] Advanced analytics dashboard
 - [ ] Benchmark karsilastirma UI
@@ -180,4 +176,4 @@
 ---
 
 *Bu dosya proje durumunu tek noktadan takip etmek icin olusturulmustur.*
-*Son guncelleme: 2026-01-21*
+*Son guncelleme: 2026-01-23*
