@@ -72,14 +72,20 @@ describe('Portfolio API Integration Tests', () => {
         id: 'portfolio-2',
         user_id: 'user-123',
         name: 'New Portfolio',
+        slug: 'new-portfolio',
         created_at: '2025-01-01T00:00:00Z',
         updated_at: null,
       };
 
       const mockSupabase = {
         from: jest.fn().mockReturnThis(),
-        insert: jest.fn().mockReturnThis(),
         select: jest.fn().mockReturnThis(),
+        eq: jest.fn().mockReturnThis(),
+        maybeSingle: jest.fn().mockResolvedValue({
+          data: null, // No existing portfolio with this slug
+          error: null,
+        }),
+        insert: jest.fn().mockReturnThis(),
         single: jest.fn().mockResolvedValue({
           data: newPortfolio,
           error: null,
