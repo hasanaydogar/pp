@@ -1,4 +1,6 @@
-import { LoginButtons } from '@/components/auth/login-buttons';
+import { AuthDivider, AuthLayout, LoginForm, SocialLoginButtons } from '@/components/auth';
+import { Link } from '@/components/ui/link';
+import { Text } from '@/components/ui/text';
 import { getCurrentUser } from '@/lib/auth/actions';
 import { redirect } from 'next/navigation';
 
@@ -11,51 +13,29 @@ export default async function LoginPage() {
   }
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: '100vh',
-        gap: '24px',
-        padding: '20px',
-        backgroundColor: '#f9fafb',
-      }}
+    <AuthLayout
+      title="Hoş geldiniz"
+      subtitle="Hesabınıza giriş yapın"
+      footer={
+        <Text>
+          Hesabınız yok mu?{' '}
+          <Link
+            href="/register"
+            className="text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
+          >
+            Kayıt olun
+          </Link>
+        </Text>
+      }
     >
-      <div
-        style={{
-          backgroundColor: 'white',
-          padding: '40px',
-          borderRadius: '12px',
-          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-          maxWidth: '400px',
-          width: '100%',
-        }}
-      >
-        <h1
-          style={{
-            fontSize: '28px',
-            fontWeight: 'bold',
-            marginBottom: '8px',
-            textAlign: 'center',
-          }}
-        >
-          Welcome
-        </h1>
-        <p
-          style={{
-            fontSize: '16px',
-            color: '#6b7280',
-            marginBottom: '32px',
-            textAlign: 'center',
-          }}
-        >
-          Sign in to continue
-        </p>
+      {/* Social Login */}
+      <SocialLoginButtons />
 
-        <LoginButtons />
-      </div>
-    </div>
+      {/* Divider */}
+      <AuthDivider text="veya email ile" />
+
+      {/* Email/Password Form */}
+      <LoginForm />
+    </AuthLayout>
   );
 }

@@ -35,6 +35,91 @@ export async function signOut() {
   redirect('/login');
 }
 
+// ============================================
+// Email/Password Authentication
+// ============================================
+
+export async function signInWithEmail(email: string, password: string) {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
+
+  if (error) {
+    return { success: false, error: error.message };
+  }
+
+  return { success: true, user: data.user };
+}
+
+export async function signUpWithEmail(
+  email: string,
+  password: string,
+  fullName: string
+) {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      data: {
+        full_name: fullName,
+      },
+      emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth-redirect`,
+    },
+  });
+
+  if (error) {
+    return { success: false, error: error.message };
+  }
+
+  // Check if user needs email confirmation
+  const needsConfirmation = data.user && !data.session;
+
+  return {
+    success: true,
+    user: data.user,
+    needsConfirmation,
+  };
+}
+
+export async function resetPassword(email: string) {
+  const supabase = await createClient();
+
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/reset-password`,
+  });
+
+  if (error) {
+    // Don't expose if email exists or not for security
+    console.error('Password reset error:', error.message);
+  }
+
+  // Always return success for security (don't reveal if email exists)
+  return { success: true };
+}
+
+export async function updatePassword(newPassword: string) {
+  const supabase = await createClient();
+
+  const { error } = await supabase.auth.updateUser({
+    password: newPassword,
+  });
+
+  if (error) {
+    return { success: false, error: error.message };
+  }
+
+  return { success: true };
+}
+
+// ============================================
+// User Management
+// ============================================
+
 export async function getCurrentUser() {
   const supabase = await createClient();
 
