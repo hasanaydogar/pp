@@ -21,7 +21,10 @@
       "Bash(npx supabase db execute:*)",
       "Bash(git status:*)",
       "Skill(sp-status)",
-      "Skill(sp-status:*)"
+      "Skill(sp-status:*)",
+      "WebFetch(domain:catalyst-demo.tailwindui.com)",
+      "Skill(sp-execute)",
+      "Bash(npx jest:*)"
     ]
   }
 }

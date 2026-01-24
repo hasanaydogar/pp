@@ -5,7 +5,12 @@
 - **SpecPulse Version**: 2.7.1
 - **AI Assistant**: Claude Code
 
-## Active Feature: None
+## Active Feature: 019-email-auth-register
+- **ID**: 019
+- **Name**: Email/Password Authentication & Register Page
+- **Status**: TASKS_CREATED
+- **Created**: 2026-01-23
+- **Description**: Login sayfası redesign, email/password auth, register sayfası
 
 ## Recently Completed Feature: 016-cash-dividend-bugfix-refactoring
 - **ID**: 016
