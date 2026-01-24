@@ -218,8 +218,8 @@ export default function PortfolioSettingsPage({ params }: SettingsPageProps) {
       <div className="space-y-8">
         <Heading level={1}>Portföy Ayarları</Heading>
         <ErrorMessage error={error} />
-        <Link href="/dashboard">
-          <Button>Dashboard'a Dön</Button>
+        <Link href="/portfolios">
+          <Button>Portföylere Dön</Button>
         </Link>
       </div>
     );
@@ -230,8 +230,8 @@ export default function PortfolioSettingsPage({ params }: SettingsPageProps) {
       <div className="space-y-8">
         <Heading level={1}>Portföy Bulunamadı</Heading>
         <Text>Aradığınız portföy bulunamadı.</Text>
-        <Link href="/dashboard">
-          <Button>Dashboard'a Dön</Button>
+        <Link href="/portfolios">
+          <Button>Portföylere Dön</Button>
         </Link>
       </div>
     );
@@ -475,7 +475,7 @@ export default function PortfolioSettingsPage({ params }: SettingsPageProps) {
             if (confirm(`"${portfolio.name}" portföyünü silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.`)) {
               // Delete portfolio
               fetch(`/api/portfolios/${portfolio.id}`, { method: 'DELETE' })
-                .then(() => router.push('/dashboard'))
+                .then(() => router.push('/portfolios'))
                 .catch((err) => console.error('Error deleting portfolio:', err));
             }
           }}

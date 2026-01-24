@@ -244,8 +244,8 @@ export function ApplicationLayoutClient({
                 {activePortfolio?.name || 'Portföy'}
               </SidebarLabel>
               <SidebarItem
-                href={activePortfolio ? `/p/${activePortfolio.slug || createSlug(activePortfolio.name)}` : '/dashboard'}
-                current={pathname === '/dashboard' || (pathname.startsWith('/p/') && !pathname.includes('/analysis') && !pathname.includes('/goals') && !pathname.includes('/cash') && !pathname.includes('/projection'))}
+                href={activePortfolio ? `/p/${activePortfolio.slug || createSlug(activePortfolio.name)}` : '/portfolios'}
+                current={pathname.startsWith('/p/') && !pathname.includes('/analysis') && !pathname.includes('/goals') && !pathname.includes('/cash') && !pathname.includes('/projection')}
               >
                 <WalletIcon />
                 <SidebarLabel>Varlıklar</SidebarLabel>

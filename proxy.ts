@@ -62,7 +62,7 @@ export async function proxy(request: NextRequest) {
   const protectedRoutes = [
     '/test',
     '/profile',
-    '/dashboard',
+    '/portfolios',
     '/assets',
     '/analysis',
     '/settings',
@@ -80,7 +80,7 @@ export async function proxy(request: NextRequest) {
 
   // Redirect authenticated users away from login page
   if (request.nextUrl.pathname === '/login' && user) {
-    return NextResponse.redirect(new URL('/dashboard', request.url));
+    return NextResponse.redirect(new URL('/auth-redirect', request.url));
   }
 
   return supabaseResponse;

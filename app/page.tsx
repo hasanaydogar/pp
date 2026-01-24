@@ -4,9 +4,9 @@ import { redirect } from 'next/navigation';
 export default async function Home() {
   const user = await getCurrentUser();
 
-  // Redirect authenticated users to dashboard
+  // Redirect authenticated users to auth-redirect (which handles portfolio routing)
   if (user) {
-    redirect('/dashboard');
+    redirect('/auth-redirect');
   }
 
   // Redirect unauthenticated users to login
