@@ -12,6 +12,7 @@
 - **Completed**: 2026-01-26
 - **Description**: Portföy varlıklar tablosunda kolon sıralaması değiştirme ve kolon ekleme/çıkarma
 - **Tasks**: 25/25 (100%)
+- **Additional**: Günlük kolonu "Günlük %" ve "Günlük TL" olarak ikiye ayrıldı
 
 ## Recently Completed Feature: 019-email-auth-register
 - **ID**: 019

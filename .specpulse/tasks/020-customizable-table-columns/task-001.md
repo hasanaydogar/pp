@@ -3,7 +3,7 @@
 <!-- FEATURE_DIR: 020-customizable-table-columns -->
 <!-- FEATURE_ID: 020 -->
 <!-- TASK_LIST_ID: 001 -->
-<!-- STATUS: pending -->
+<!-- STATUS: completed -->
 <!-- CREATED: 2026-01-26 -->
 <!-- LAST_UPDATED: 2026-01-26 -->
 
@@ -724,10 +724,10 @@ T025 ◄────────────────────┘
 ```yaml
 status:
   total: 25
-  completed: 0
+  completed: 25
   in_progress: 0
   blocked: 0
-  completion_percentage: 0%
+  completion_percentage: 100%
 
 phases:
   phase_1_foundation:
