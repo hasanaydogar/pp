@@ -13,6 +13,7 @@ import { useCurrency } from '@/lib/context/currency-context';
 import { useLastVisitedPortfolio } from '@/lib/hooks/use-last-visited-portfolio';
 import { useLivePrices } from '@/lib/hooks/use-live-prices';
 import { usePerformance } from '@/lib/hooks/use-performance';
+import { useTablePreferences } from '@/lib/hooks/use-table-preferences';
 import { PortfolioSummaryCards } from '@/components/portfolio/portfolio-summary-cards';
 import { AssetDistributionBar } from '@/components/portfolio/asset-distribution-bar';
 import { SortableAssetsTable } from '@/components/portfolio/sortable-assets-table';
@@ -53,6 +54,14 @@ export default function PortfolioDashboardPage({ params }: PortfolioDashboardPag
   
   const { setActivePortfolioId } = usePortfolio();
   const { currency } = useCurrency();
+
+  // Table column preferences
+  const {
+    columns: tableColumns,
+    setColumnOrder,
+    toggleColumnVisibility,
+    resetToDefault: resetTableColumns,
+  } = useTablePreferences(portfolio?.id || null);
 
   // Track last visited portfolio for navigation
   useLastVisitedPortfolio();
@@ -418,6 +427,10 @@ export default function PortfolioDashboardPage({ params }: PortfolioDashboardPag
         policy={policy}
         slug={slug}
         displayCurrency={displayCurrency}
+        columns={tableColumns}
+        onColumnsChange={setColumnOrder}
+        onToggleColumn={toggleColumnVisibility}
+        onResetColumns={resetTableColumns}
       />
     </div>
   );

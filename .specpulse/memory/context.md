@@ -5,11 +5,19 @@
 - **SpecPulse Version**: 2.7.1
 - **AI Assistant**: Claude Code
 
-## Active Feature: 019-email-auth-register
+## Recently Completed Feature: 020-customizable-table-columns
+- **ID**: 020
+- **Name**: Customizable Table Columns
+- **Status**: COMPLETED
+- **Completed**: 2026-01-26
+- **Description**: Portföy varlıklar tablosunda kolon sıralaması değiştirme ve kolon ekleme/çıkarma
+- **Tasks**: 25/25 (100%)
+
+## Recently Completed Feature: 019-email-auth-register
 - **ID**: 019
 - **Name**: Email/Password Authentication & Register Page
-- **Status**: TASKS_CREATED
-- **Created**: 2026-01-23
+- **Status**: COMPLETED
+- **Completed**: 2026-01-26
 - **Description**: Login sayfası redesign, email/password auth, register sayfası
 
 ## Recently Completed Feature: 016-cash-dividend-bugfix-refactoring

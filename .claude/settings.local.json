@@ -24,7 +24,8 @@
       "Skill(sp-status:*)",
       "WebFetch(domain:catalyst-demo.tailwindui.com)",
       "Skill(sp-execute)",
-      "Bash(npx jest:*)"
+      "Bash(npx jest:*)",
+      "Bash(npm test:*)"
     ]
   }
 }
